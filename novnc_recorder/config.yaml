@@ -1,0 +1,9 @@
+output-directory: "/tmp/recordings"
+video-format: mp4
+framerate: 25
+resolution:
+  width: 1920
+  height: 1080
+audio: true
+# max-duration-seconds: 3600 # Example of an optional field
+log-level: debug

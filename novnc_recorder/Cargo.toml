@@ -1,0 +1,20 @@
+[package]
+name = "novnc_recorder"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_yaml = "0.9"
+x11rb = { version = "0.13", features = ["allow-unsafe-code"] } # allow-unsafe-code might be needed for XCB shm
+libpulse-binding = "2.28"
+ffmpeg-next = "6.0" # Or the latest compatible version
+log = "0.4"
+env_logger = "0.10" # Or the latest compatible version
+nix = { version = "0.27", features = ["signal"] } # Or the latest compatible version
+tokio = { version = "1", features = ["full"] } # For async operations, might be useful
+anyhow = "1.0" # For error handling
+chrono = { version = "0.4", features = ["serde"] }
+clap = { version = "4.4", features = ["derive"] }
