@@ -27,6 +27,8 @@ height: 720               # optional
 audio: true               # capture PulseAudio output
 max_duration: 3600        # optional (seconds)
 ffmpeg_path: ffmpeg       # optional encoder binary
+preset: medium            # optional libx264 preset (e.g. ultrafast, superfast)
+crf: 23                   # optional libx264 Constant Rate Factor (0-51)
 ```
 
 ## Running

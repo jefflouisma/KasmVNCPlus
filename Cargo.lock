@@ -339,6 +339,7 @@ dependencies = [
  "ctrlc",
  "env_logger",
  "log",
+ "nix",
  "serde",
  "serde_yaml",
  "tempfile",
