@@ -1,6 +1,4 @@
 pub mod config;
-pub mod ffmpeg;
-pub mod recorder;
+pub mod oauth;
 
-pub use config::{read_config, Config};
-pub use recorder::run;
+pub use config::{Config, read_config};

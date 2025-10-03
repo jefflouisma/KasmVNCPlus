@@ -1,5 +1,4 @@
 use serde::Deserialize;
-use std::error::Error;
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -19,7 +18,13 @@ fn default_ffmpeg_path() -> String {
     "ffmpeg".into()
 }
 
-#[derive(Debug, Deserialize)]
+fn default_vnc_command() -> String {
+    "Xvnc".into()
+}
+
+use crate::oauth::config::OAuthConfig;
+
+#[derive(Debug, Deserialize, Clone)]
 #[serde(default)]
 pub struct Config {
     #[serde(default = "default_output_dir")]
@@ -38,8 +43,11 @@ pub struct Config {
     pub session_id_env: String,
     #[serde(default = "default_ffmpeg_path")]
     pub ffmpeg_path: String,
+    #[serde(default = "default_vnc_command")]
+    pub vnc_command: String,
     pub preset: Option<String>,
     pub crf: Option<u32>,
+    pub oauth: Option<OAuthConfig>,
 }
 
 impl Default for Config {
@@ -56,17 +64,41 @@ impl Default for Config {
             audio_source: None,
             session_id_env: default_session_id_env(),
             ffmpeg_path: default_ffmpeg_path(),
+            vnc_command: default_vnc_command(),
             preset: None,
             crf: None,
+            oauth: None,
         }
     }
+}
+
+impl Config {
+    pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
+        let contents = fs::read_to_string(path)?;
+        let cfg = serde_yaml::from_str(&contents)?;
+        Ok(cfg)
+    }
+}
+
+pub fn read_config() -> Result<Config, Box<dyn std::error::Error + Send + Sync>> {
+    if let Ok(env_path) = std::env::var("NOVNC_RECORDER_CONFIG") {
+        return Config::from_file(env_path);
+    }
+
+    let args: Vec<String> = std::env::args().collect();
+    let path = if args.len() > 1 {
+        &args[1]
+    } else {
+        "/etc/novnc_recorder.yaml"
+    };
+    Config::from_file(path)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use tempfile::NamedTempFile;
     use std::io::Write;
+    use tempfile::NamedTempFile;
 
     #[test]
     fn test_config_from_file() {
@@ -86,7 +118,7 @@ preset: "fast"
 crf: 22
 "#;
         let mut file = NamedTempFile::new().unwrap();
-        write!(file, "{}", yaml).unwrap();
+        write!(file, "{yaml}").unwrap();
 
         let config = Config::from_file(file.path()).unwrap();
 
@@ -109,7 +141,7 @@ crf: 22
     fn test_default_config() {
         let yaml = "";
         let mut file = NamedTempFile::new().unwrap();
-        write!(file, "{}", yaml).unwrap();
+        write!(file, "{yaml}").unwrap();
 
         let config = Config::from_file(file.path()).unwrap();
         let default_config = Config::default();
@@ -119,26 +151,4 @@ crf: 22
         assert_eq!(config.frame_rate, default_config.frame_rate);
         assert_eq!(config.audio, default_config.audio);
     }
-}
-
-impl Config {
-    pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Self, Box<dyn Error>> {
-        let contents = fs::read_to_string(path)?;
-        let cfg = serde_yaml::from_str(&contents)?;
-        Ok(cfg)
-    }
-}
-
-pub fn read_config() -> Result<Config, Box<dyn Error>> {
-    if let Ok(env_path) = std::env::var("NOVNC_RECORDER_CONFIG") {
-        return Config::from_file(env_path);
-    }
-
-    let args: Vec<String> = std::env::args().collect();
-    let path = if args.len() > 1 {
-        &args[1]
-    } else {
-        "/etc/novnc_recorder.yaml"
-    };
-    Config::from_file(path)
 }
