@@ -1,7 +1,9 @@
 use kasmvnc_oauth::config::{OAuthConfig, OAuthClient, OAuthEndpoints, SecurityConfig, TokenConfig, SessionConfig, LoggingConfig, TokenValidation};
 use kasmvnc_oauth::handler::OAuthHandler;
 use std::sync::Arc;
-use wiremock::MockServer;
+use wiremock::{MockServer, Mock, ResponseTemplate};
+use wiremock::matchers::{method, path};
+
 #[tokio::test]
 async fn test_authorization_url_generation() {
     // Setup mock OAuth server

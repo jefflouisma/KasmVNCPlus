@@ -153,33 +153,23 @@ async fn callback(
 ) -> impl IntoResponse {
     match state.oauth_handler.exchange_code(&params.code, &params.state).await {
         Ok(token_response) => {
-            // Set access token in a secure, HttpOnly, SameSite cookie and redirect to VNC
-            use axum::http::{header, HeaderMap, HeaderValue, StatusCode};
-            use axum::response::Response;
-            use cookie::Cookie;
-
-            // Create the cookie
-            let mut cookie = Cookie::build("access_token", token_response.access_token.clone())
-                .http_only(true)
-                .secure(true)
-                .same_site(cookie::SameSite::Strict)
-                .path("/")
-                .finish();
-
-            // Build Set-Cookie header
-            let mut headers = HeaderMap::new();
-            headers.insert(
-                header::SET_COOKIE,
-                HeaderValue::from_str(&cookie.to_string()).unwrap(),
-            );
-
-            // Redirect to /vnc
-            Response::builder()
-                .status(StatusCode::FOUND)
-                .header(header::LOCATION, "/vnc")
-                .header(header::SET_COOKIE, cookie.to_string())
-                .body(axum::body::Empty::new())
-                .unwrap()
+            // Create session and return JWT to client
+            Html(format!(r#"
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Login Successful</title>
+                    <script>
+                        // Store token and redirect to VNC
+                        localStorage.setItem('access_token', '{}');
+                        window.location.href = '/vnc';
+                    </script>
+                </head>
+                <body>
+                    <h1>Login successful, redirecting...</h1>
+                </body>
+                </html>
+            "#, token_response.access_token)).into_response()
         }
         Err(e) => {
             tracing::error!("Token exchange failed: {}", e);
