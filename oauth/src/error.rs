@@ -1,8 +1,8 @@
-use thiserror::Error;
-use axum::response::{IntoResponse, Response};
 use axum::http::StatusCode;
-use reqwest;
+use axum::response::{IntoResponse, Response};
 use jsonwebtoken;
+use reqwest;
+use thiserror::Error;
 use url;
 
 #[derive(Error, Debug)]
@@ -46,12 +46,23 @@ impl IntoResponse for OAuthError {
         let (status, error_message) = match self {
             OAuthError::Config(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg),
             OAuthError::TokenValidation(err) => (StatusCode::UNAUTHORIZED, err.to_string()),
-            OAuthError::InvalidAuthCode => (StatusCode::BAD_REQUEST, "Invalid authorization code".to_string()),
-            OAuthError::InvalidState => (StatusCode::BAD_REQUEST, "Invalid state parameter".to_string()),
+            OAuthError::InvalidAuthCode => (
+                StatusCode::BAD_REQUEST,
+                "Invalid authorization code".to_string(),
+            ),
+            OAuthError::InvalidState => (
+                StatusCode::BAD_REQUEST,
+                "Invalid state parameter".to_string(),
+            ),
             OAuthError::TokenExpired => (StatusCode::UNAUTHORIZED, "Token expired".to_string()),
-            OAuthError::SessionNotFound(id) => (StatusCode::NOT_FOUND, format!("Session {} not found", id)),
+            OAuthError::SessionNotFound(id) => {
+                (StatusCode::NOT_FOUND, format!("Session {} not found", id))
+            }
             OAuthError::UrlParse(err) => (StatusCode::INTERNAL_SERVER_ERROR, err.to_string()),
-            _ => (StatusCode::INTERNAL_SERVER_ERROR, "Internal server error".to_string()),
+            _ => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "Internal server error".to_string(),
+            ),
         };
 
         let body = serde_json::json!({

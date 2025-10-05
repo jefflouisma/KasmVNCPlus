@@ -1,6 +1,6 @@
-use kasmvnc_oauth::jwt::{Claims, JwtValidator};
-use jsonwebtoken::{encode, Header, Algorithm, EncodingKey};
 use chrono::Utc;
+use jsonwebtoken::{encode, Algorithm, EncodingKey, Header};
+use kasmvnc_oauth::jwt::{Claims, JwtValidator};
 
 fn create_test_token(exp_offset: i64) -> String {
     let now = Utc::now().timestamp();
@@ -25,7 +25,8 @@ fn create_test_token(exp_offset: i64) -> String {
         &Header::new(Algorithm::HS256),
         &claims,
         &EncodingKey::from_secret(b"test-secret"),
-    ).unwrap()
+    )
+    .unwrap()
 }
 
 #[test]

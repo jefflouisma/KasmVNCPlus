@@ -1,10 +1,10 @@
-use serde::{Deserialize, Serialize};
-use std::path::Path;
-use std::fs;
-use std::env;
 use crate::error::{OAuthError, Result};
-use url;
 use regex;
+use serde::{Deserialize, Serialize};
+use std::env;
+use std::fs;
+use std::path::Path;
+use url;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OAuthConfig {
@@ -99,17 +99,39 @@ pub struct LoggingConfig {
 }
 
 // Default value functions
-fn default_true() -> bool { true }
-fn default_scope() -> String { "openid profile email".to_string() }
-fn default_pkce_method() -> String { "S256".to_string() }
-fn default_clock_skew() -> u64 { 60 }
-fn default_access_token_lifetime() -> u64 { 3600 }
-fn default_refresh_token_lifetime() -> u64 { 7776000 }
-fn default_jwks_cache_ttl() -> u64 { 86400 }
-fn default_session_timeout() -> u64 { 28800 }
-fn default_idle_timeout() -> u64 { 3600 }
-fn default_max_sessions() -> usize { 5 }
-fn default_log_level() -> String { "info".to_string() }
+fn default_true() -> bool {
+    true
+}
+fn default_scope() -> String {
+    "openid profile email".to_string()
+}
+fn default_pkce_method() -> String {
+    "S256".to_string()
+}
+fn default_clock_skew() -> u64 {
+    60
+}
+fn default_access_token_lifetime() -> u64 {
+    3600
+}
+fn default_refresh_token_lifetime() -> u64 {
+    7776000
+}
+fn default_jwks_cache_ttl() -> u64 {
+    86400
+}
+fn default_session_timeout() -> u64 {
+    28800
+}
+fn default_idle_timeout() -> u64 {
+    3600
+}
+fn default_max_sessions() -> usize {
+    5
+}
+fn default_log_level() -> String {
+    "info".to_string()
+}
 
 impl OAuthConfig {
     /// Load configuration from TOML file
@@ -216,9 +238,13 @@ impl OAuthConfig {
         let uri = url::Url::parse(&self.client.redirect_uri)
             .map_err(|e| OAuthError::Config(format!("Invalid redirect_uri: {}", e)))?;
 
-        if uri.scheme() != "https" && !uri.host_str().map_or(false, |h| h == "localhost" || h == "127.0.0.1") {
+        if uri.scheme() != "https"
+            && !uri
+                .host_str()
+                .map_or(false, |h| h == "localhost" || h == "127.0.0.1")
+        {
             return Err(OAuthError::Config(
-                "redirect_uri must use HTTPS (except for localhost)".to_string()
+                "redirect_uri must use HTTPS (except for localhost)".to_string(),
             ));
         }
 

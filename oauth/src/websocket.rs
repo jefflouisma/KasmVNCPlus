@@ -1,14 +1,14 @@
-use std::sync::Arc;
-use std::net::SocketAddr;
-use axum::extract::ws::{WebSocket, WebSocketUpgrade, Message};
-use axum::extract::{State, ConnectInfo};
-use axum::response::Response;
-use futures_util::{StreamExt, SinkExt};
-use serde::{Deserialize, Serialize};
-use chrono::Utc;
-use crate::jwt::JwtValidator;
-use crate::session::{Session, SessionManager};
 use crate::error::{OAuthError, Result};
+use crate::jwt::JwtValidator;
+use crate::session::{SessionManager, SharedSession};
+use axum::extract::ws::{Message, WebSocket, WebSocketUpgrade};
+use axum::extract::{ConnectInfo, State};
+use axum::response::Response;
+use chrono::Utc;
+use futures_util::{SinkExt, StreamExt};
+use serde::{Deserialize, Serialize};
+use std::net::SocketAddr;
+use std::sync::Arc;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type")]
@@ -20,10 +20,7 @@ pub enum WsMessage {
         method: String,
     },
     #[serde(rename = "auth_required")]
-    AuthRequired {
-        methods: Vec<String>,
-        timeout: u32,
-    },
+    AuthRequired { methods: Vec<String>, timeout: u32 },
     #[serde(rename = "auth_success")]
     AuthSuccess {
         session_id: String,
@@ -33,13 +30,9 @@ pub enum WsMessage {
         vnc_port: Option<u16>,
     },
     #[serde(rename = "auth_error")]
-    AuthError {
-        error: String,
-    },
+    AuthError { error: String },
     #[serde(rename = "vnc_data")]
-    VncData {
-        data: Vec<u8>,
-    },
+    VncData { data: Vec<u8> },
 }
 
 pub struct WebSocketState {
@@ -59,11 +52,7 @@ pub async fn handle_websocket(
 }
 
 /// Handle WebSocket connection
-async fn handle_socket(
-    socket: WebSocket,
-    state: Arc<WebSocketState>,
-    addr: SocketAddr,
-) {
+async fn handle_socket(socket: WebSocket, state: Arc<WebSocketState>, addr: SocketAddr) {
     let (mut tx, mut rx) = socket.split();
 
     // Send authentication required message
@@ -81,7 +70,7 @@ async fn handle_socket(
     tokio::pin!(auth_timeout);
 
     let mut authenticated = false;
-    let mut session: Option<Arc<Session>> = None;
+    let mut session: Option<SharedSession> = None;
 
     loop {
         tokio::select! {
@@ -103,22 +92,23 @@ async fn handle_socket(
                             // Handle authentication
                             match handle_auth_message(&text, &state).await {
                                 Ok(auth_session) => {
+                                    let snapshot = auth_session.read().await.clone();
                                     authenticated = true;
                                     session = Some(auth_session.clone());
 
                                     let success = WsMessage::AuthSuccess {
-                                        session_id: auth_session.id.clone(),
-                                        user_id: auth_session.user_id.clone(),
-                                        email: auth_session.email.clone(),
-                                        vnc_display: auth_session.vnc_display,
-                                        vnc_port: auth_session.vnc_port,
+                                        session_id: snapshot.id.clone(),
+                                        user_id: snapshot.user_id.clone(),
+                                        email: snapshot.email.clone(),
+                                        vnc_display: snapshot.vnc_display,
+                                        vnc_port: snapshot.vnc_port,
                                     };
 
                                     if let Ok(json) = serde_json::to_string(&success) {
                                         let _ = tx.send(Message::Text(json)).await;
                                     }
 
-                                    tracing::info!("WebSocket authenticated: user={}", auth_session.user_id);
+                                    tracing::info!("WebSocket authenticated: user={}", snapshot.user_id);
                                 }
                                 Err(e) => {
                                     let error = WsMessage::AuthError {
@@ -168,15 +158,16 @@ async fn handle_socket(
 
     // Clean up session
     if let Some(session) = session {
-        let _ = state.session_manager.terminate_session(&session.id).await;
+        let session_id = {
+            let guard = session.read().await;
+            guard.id.clone()
+        };
+        let _ = state.session_manager.terminate_session(&session_id).await;
     }
 }
 
 /// Handle authentication message
-async fn handle_auth_message(
-    message: &str,
-    state: &WebSocketState,
-) -> Result<Arc<Session>> {
+async fn handle_auth_message(message: &str, state: &WebSocketState) -> Result<SharedSession> {
     let msg: WsMessage = serde_json::from_str(message)
         .map_err(|e| OAuthError::WebSocket(format!("Invalid message: {}", e)))?;
 
@@ -187,11 +178,14 @@ async fn handle_auth_message(
 
             if !validation_result.valid {
                 return Err(OAuthError::WebSocket(
-                    validation_result.error.unwrap_or_else(|| "Token validation failed".to_string())
+                    validation_result
+                        .error
+                        .unwrap_or_else(|| "Token validation failed".to_string()),
                 ));
             }
 
-            let claims = validation_result.claims
+            let claims = validation_result
+                .claims
                 .ok_or_else(|| OAuthError::WebSocket("No claims in token".to_string()))?;
 
             // Check expiration
@@ -203,43 +197,52 @@ async fn handle_auth_message(
             }
 
             // Create session
-            let scopes: Vec<String> = claims.scope.split_whitespace()
-                .map(String::from)
-                .collect();
+            let scopes: Vec<String> = claims.scope.split_whitespace().map(String::from).collect();
 
-            let session = state.session_manager
+            let session = state
+                .session_manager
                 .create_session(
                     claims.sub,
                     claims.email,
                     scopes,
                     expiry,
+                    Some(token.clone()),
+                    None,
                 )
                 .await?;
 
             Ok(session)
         }
-        _ => Err(OAuthError::WebSocket("First message must be authentication".to_string())),
+        _ => Err(OAuthError::WebSocket(
+            "First message must be authentication".to_string(),
+        )),
     }
 }
 
 /// Handle VNC message
 async fn handle_vnc_message(
     message: &str,
-    session: &Session,
+    session: &SharedSession,
     _tx: &mut futures_util::stream::SplitSink<WebSocket, Message>,
 ) {
-    // Update session activity
-    // In production, forward to actual VNC server
-
-    tracing::debug!("VNC message for session {}: {}", session.id, message);
+    {
+        let mut guard = session.write().await;
+        guard.last_activity = Utc::now();
+        tracing::debug!("VNC message for session {}: {}", guard.id, message);
+    }
 }
 
 /// Handle VNC binary data
 async fn handle_vnc_binary(
     data: &[u8],
-    session: &Session,
+    session: &SharedSession,
     _tx: &mut futures_util::stream::SplitSink<WebSocket, Message>,
 ) {
     // Forward to actual VNC server
-    tracing::debug!("VNC binary data for session {}: {} bytes", session.id, data.len());
+    let guard = session.read().await;
+    tracing::debug!(
+        "VNC binary data for session {}: {} bytes",
+        guard.id,
+        data.len()
+    );
 }

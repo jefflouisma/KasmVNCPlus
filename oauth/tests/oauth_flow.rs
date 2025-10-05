@@ -1,4 +1,7 @@
-use kasmvnc_oauth::config::{OAuthConfig, OAuthClient, OAuthEndpoints, SecurityConfig, TokenConfig, SessionConfig, LoggingConfig, TokenValidation};
+use kasmvnc_oauth::config::{
+    LoggingConfig, OAuthClient, OAuthConfig, OAuthEndpoints, SecurityConfig, SessionConfig,
+    TokenConfig, TokenValidation,
+};
 use kasmvnc_oauth::handler::OAuthHandler;
 use std::sync::Arc;
 use wiremock::MockServer;
@@ -62,6 +65,8 @@ async fn test_authorization_url_generation() {
     assert!(!auth_request.authorization_url.is_empty());
     assert!(!auth_request.state.is_empty());
     assert!(!auth_request.code_verifier.is_empty());
-    assert!(auth_request.authorization_url.contains("response_type=code"));
+    assert!(auth_request
+        .authorization_url
+        .contains("response_type=code"));
     assert!(auth_request.authorization_url.contains("code_challenge="));
 }

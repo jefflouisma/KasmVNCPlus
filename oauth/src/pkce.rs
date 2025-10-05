@@ -1,6 +1,6 @@
-use sha2::{Sha256, Digest};
-use base64::{Engine as _, engine::general_purpose::URL_SAFE_NO_PAD};
-use rand::{Rng, thread_rng};
+use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine as _};
+use rand::{thread_rng, Rng};
+use sha2::{Digest, Sha256};
 
 /// PKCE (Proof Key for Code Exchange) implementation
 #[derive(Clone)]
@@ -35,9 +35,7 @@ impl PkceChallenge {
     /// Generate a cryptographically random code verifier
     fn generate_verifier() -> String {
         let mut rng = thread_rng();
-        let random_bytes: Vec<u8> = (0..64)
-            .map(|_| rng.gen::<u8>())
-            .collect();
+        let random_bytes: Vec<u8> = (0..64).map(|_| rng.gen::<u8>()).collect();
 
         URL_SAFE_NO_PAD.encode(&random_bytes)
     }
@@ -55,9 +53,7 @@ impl PkceChallenge {
 /// Generate a random state parameter for CSRF protection
 pub fn generate_state() -> String {
     let mut rng = thread_rng();
-    let random_bytes: Vec<u8> = (0..32)
-        .map(|_| rng.gen::<u8>())
-        .collect();
+    let random_bytes: Vec<u8> = (0..32).map(|_| rng.gen::<u8>()).collect();
 
     URL_SAFE_NO_PAD.encode(&random_bytes)
 }

@@ -19,7 +19,9 @@ This project provides a comprehensive session recording and authentication solut
   - Implements the OAuth 2.0 Authorization Code Flow with PKCE for enhanced security.
   - Validates JWTs using a cached JWKS for high performance.
   - Secures the VNC WebSocket connection with a first-message authentication pattern.
-  - Manages user sessions and VNC display allocation.
+  - Manages user sessions, allocates VNC displays, and enforces idle/absolute timeouts.
+  - Issues hardened HttpOnly session cookies with configurable lifetimes.
+  - Exposes REST endpoints for session inspection, logout, and refresh token rotation.
   - Highly configurable via a TOML file with support for environment variable overrides.
 
 ## Project Structure
@@ -134,6 +136,20 @@ To run the authentication server, use the following command:
 ```bash
 OAUTH_CONFIG=/path/to/oauth.toml cargo run --bin kasmvnc-oauth-server
 ```
+
+### API Endpoints
+
+The OAuth service exposes a small set of HTTP endpoints that can be consumed by the web client or external tooling:
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/auth/login` | `GET` | Initiates the OAuth flow and redirects the browser to the identity provider. |
+| `/auth/callback` | `GET` | Handles the provider callback, validates the ID token, creates a VNC session, and emits an HttpOnly session cookie. |
+| `/auth/logout` | `POST` | Terminates the active session (if any) and clears the session cookie. |
+| `/auth/refresh` | `POST` | Exchanges the stored refresh token for new credentials, rotating the access token in the in-memory session. |
+| `/api/session` | `GET` | Returns metadata about the current session, including permissions, expiry timestamps, and the allocated VNC display. |
+
+All responses use JSON unless an OAuth redirect is required. Clients should present the `kasmvnc_session` cookie returned by `/auth/callback` when calling authenticated endpoints.
 
 ## `novnc_recorder`
 
