@@ -2,15 +2,15 @@ use crate::config::Config;
 use crate::ffmpeg::build_ffmpeg_command;
 use chrono::Utc;
 use log::{error, info};
-use std::error::Error;
-use std::fs;
-use std::sync::{
-    atomic::{AtomicBool, Ordering},
-    Arc,
-};
 use nix::sys::signal::{self, Signal};
 use nix::unistd::Pid;
+use std::error::Error;
+use std::fs;
 use std::io::{BufRead, BufReader};
+use std::sync::{
+    Arc,
+    atomic::{AtomicBool, Ordering},
+};
 use std::thread;
 use std::time::{Duration, Instant};
 
@@ -64,7 +64,10 @@ pub fn run(cfg: Config) -> Result<(), Box<dyn Error>> {
         thread::sleep(Duration::from_millis(500));
     }
 
-    info!("sending SIGINT to ffmpeg process group (pgid {})", child_pid);
+    info!(
+        "sending SIGINT to ffmpeg process group (pgid {})",
+        child_pid
+    );
     if let Err(e) = signal::kill(Pid::from_raw(-child_pid.as_raw()), Signal::SIGINT) {
         error!("failed to send SIGINT to ffmpeg process group: {}", e);
     }

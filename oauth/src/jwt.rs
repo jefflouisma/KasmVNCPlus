@@ -1,19 +1,21 @@
-use std::sync::Arc;
-use jsonwebtoken::{decode, decode_header, Validation, TokenData};
-use serde::{Deserialize, Serialize};
 use crate::error::{OAuthError, Result};
 use crate::jwks::JwksCache;
 use base64::{engine::general_purpose, Engine as _};
+use jsonwebtoken::{decode, decode_header, Validation};
+use serde::de::Deserializer;
+use serde::{Deserialize, Serialize};
+use std::sync::Arc;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Claims {
     // Standard claims
-    pub iss: String,  // Issuer
-    pub sub: String,  // Subject (user ID)
-    pub aud: Vec<String>,  // Audience
-    pub exp: i64,     // Expiration time
-    pub nbf: Option<i64>,   // Not before
-    pub iat: Option<i64>,   // Issued at
+    pub iss: String, // Issuer
+    pub sub: String, // Subject (user ID)
+    #[serde(deserialize_with = "deserialize_audience")]
+    pub aud: Vec<String>, // Audience
+    pub exp: i64,    // Expiration time
+    pub nbf: Option<i64>, // Not before
+    pub iat: Option<i64>, // Issued at
 
     // OpenID Connect claims
     pub email: Option<String>,
@@ -28,6 +30,23 @@ pub struct Claims {
     pub scope: String,
     #[serde(flatten)]
     pub custom: serde_json::Value,
+}
+
+fn deserialize_audience<'de, D>(deserializer: D) -> std::result::Result<Vec<String>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    #[derive(Deserialize)]
+    #[serde(untagged)]
+    enum AudienceField {
+        Single(String),
+        Multiple(Vec<String>),
+    }
+
+    match AudienceField::deserialize(deserializer)? {
+        AudienceField::Single(value) => Ok(vec![value]),
+        AudienceField::Multiple(values) => Ok(values),
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -66,12 +85,11 @@ impl JwtValidator {
         // Decode header to get kid
         let header = decode_header(token)?;
 
-        let kid = header.kid
-            .ok_or_else(|| OAuthError::TokenValidation(
-                jsonwebtoken::errors::Error::from(
-                    jsonwebtoken::errors::ErrorKind::InvalidKeyFormat
-                )
-            ))?;
+        let kid = header.kid.ok_or_else(|| {
+            OAuthError::TokenValidation(jsonwebtoken::errors::Error::from(
+                jsonwebtoken::errors::ErrorKind::InvalidKeyFormat,
+            ))
+        })?;
 
         // Get public key from JWKS cache
         let decoding_key = self.jwks_cache.get_key(&kid).await?;
@@ -82,6 +100,14 @@ impl JwtValidator {
             jsonwebtoken::Algorithm::RS256,
             jsonwebtoken::Algorithm::RS384,
             jsonwebtoken::Algorithm::RS512,
+            jsonwebtoken::Algorithm::PS256,
+            jsonwebtoken::Algorithm::PS384,
+            jsonwebtoken::Algorithm::PS512,
+            jsonwebtoken::Algorithm::ES256,
+            jsonwebtoken::Algorithm::ES384,
+            jsonwebtoken::Algorithm::HS256,
+            jsonwebtoken::Algorithm::HS384,
+            jsonwebtoken::Algorithm::HS512,
         ];
         validation.set_issuer(&[&self.issuer]);
         validation.set_audience(&[&self.audience]);
@@ -109,7 +135,7 @@ impl JwtValidator {
                 valid: false,
                 claims: None,
                 error: Some(e.to_string()),
-            })
+            }),
         }
     }
 
@@ -126,8 +152,8 @@ impl JwtValidator {
             if nbf > now + self.clock_skew_seconds {
                 return Err(OAuthError::TokenValidation(
                     jsonwebtoken::errors::Error::from(
-                        jsonwebtoken::errors::ErrorKind::ImmatureSignature
-                    )
+                        jsonwebtoken::errors::ErrorKind::ImmatureSignature,
+                    ),
                 ));
             }
         }
@@ -136,30 +162,28 @@ impl JwtValidator {
     }
 
     /// Extract claims without validation (for debugging only)
+    #[allow(dead_code)]
     pub fn extract_claims_unsafe(token: &str) -> Result<Claims> {
         let parts: Vec<&str> = token.split('.').collect();
         if parts.len() != 3 {
             return Err(OAuthError::TokenValidation(
-                jsonwebtoken::errors::Error::from(
-                    jsonwebtoken::errors::ErrorKind::InvalidToken
-                )
+                jsonwebtoken::errors::Error::from(jsonwebtoken::errors::ErrorKind::InvalidToken),
             ));
         }
 
         let payload = general_purpose::URL_SAFE_NO_PAD
             .decode(parts[1])
-            .map_err(|_| OAuthError::TokenValidation(
-                jsonwebtoken::errors::Error::from(
-                    jsonwebtoken::errors::ErrorKind::InvalidToken
-                )
-            ))?;
+            .map_err(|_| {
+                OAuthError::TokenValidation(jsonwebtoken::errors::Error::from(
+                    jsonwebtoken::errors::ErrorKind::InvalidToken,
+                ))
+            })?;
 
-        let claims: Claims = serde_json::from_slice(&payload)
-            .map_err(|_| OAuthError::TokenValidation(
-                jsonwebtoken::errors::Error::from(
-                    jsonwebtoken::errors::ErrorKind::InvalidToken
-                )
-            ))?;
+        let claims: Claims = serde_json::from_slice(&payload).map_err(|_| {
+            OAuthError::TokenValidation(jsonwebtoken::errors::Error::from(
+                jsonwebtoken::errors::ErrorKind::InvalidToken,
+            ))
+        })?;
 
         Ok(claims)
     }

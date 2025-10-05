@@ -81,7 +81,10 @@ mod tests {
         };
         let output = PathBuf::from("/tmp/test.mp4");
         let cmd = build_ffmpeg_command(&config, &output);
-        let args: Vec<String> = cmd.get_args().map(|s| s.to_str().unwrap().to_string()).collect();
+        let args: Vec<String> = cmd
+            .get_args()
+            .map(|s| s.to_str().unwrap().to_string())
+            .collect();
 
         assert_eq!(cmd.get_program().to_str().unwrap(), "ffmpeg_test");
         assert!(args.contains(&"-y".to_string()));
@@ -112,7 +115,10 @@ mod tests {
         };
         let output = PathBuf::from("/tmp/test.mp4");
         let cmd = build_ffmpeg_command(&config, &output);
-        let args: Vec<String> = cmd.get_args().map(|s| s.to_str().unwrap().to_string()).collect();
+        let args: Vec<String> = cmd
+            .get_args()
+            .map(|s| s.to_str().unwrap().to_string())
+            .collect();
 
         assert!(args.contains(&"-r".to_string()));
         assert!(args.contains(&"30".to_string()));
@@ -139,7 +145,10 @@ mod tests {
         };
         let output = PathBuf::from("/tmp/test.avi");
         let cmd = build_ffmpeg_command(&config, &output);
-        let args: Vec<String> = cmd.get_args().map(|s| s.to_str().unwrap().to_string()).collect();
+        let args: Vec<String> = cmd
+            .get_args()
+            .map(|s| s.to_str().unwrap().to_string())
+            .collect();
         assert!(args.contains(&"-c:v".to_string()));
         assert!(args.contains(&"mpeg4".to_string()));
     }

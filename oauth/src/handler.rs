@@ -1,11 +1,11 @@
+use crate::config::OAuthConfig;
+use crate::error::{OAuthError, Result};
+use crate::pkce::{generate_state, PkceChallenge};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use serde::{Deserialize, Serialize};
 use url::Url;
-use crate::config::OAuthConfig;
-use crate::pkce::{PkceChallenge, generate_state};
-use crate::error::{OAuthError, Result};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AuthorizationRequest {
@@ -85,16 +85,11 @@ impl OAuthHandler {
     }
 
     /// Exchange authorization code for tokens
-    pub async fn exchange_code(
-        &self,
-        code: &str,
-        state: &str,
-    ) -> Result<TokenResponse> {
+    pub async fn exchange_code(&self, code: &str, state: &str) -> Result<TokenResponse> {
         // Retrieve and validate PKCE verifier
         let pkce = {
             let mut pending = self.pending_requests.write().await;
-            pending.remove(state)
-                .ok_or(OAuthError::InvalidState)?
+            pending.remove(state).ok_or(OAuthError::InvalidState)?
         };
 
         // Build token request
@@ -114,7 +109,8 @@ impl OAuthHandler {
         }
 
         // Send token request
-        let response = self.client
+        let response = self
+            .client
             .post(&self.config.endpoints.token)
             .form(&params)
             .send()
@@ -125,11 +121,15 @@ impl OAuthHandler {
             Ok(token_response)
         } else {
             let error: TokenError = response.json().await?;
-            Err(OAuthError::Config(format!(
-                "Token exchange failed: {} - {}",
-                error.error,
-                error.error_description.unwrap_or_default()
-            )))
+            match error.error.as_str() {
+                "invalid_grant" => Err(OAuthError::InvalidAuthCode),
+                "invalid_request" => Err(OAuthError::InvalidState),
+                _ => Err(OAuthError::Config(format!(
+                    "Token exchange failed: {} - {}",
+                    error.error,
+                    error.error_description.unwrap_or_default()
+                ))),
+            }
         }
     }
 
@@ -145,7 +145,8 @@ impl OAuthHandler {
             params.push(("client_secret", &self.config.client.client_secret));
         }
 
-        let response = self.client
+        let response = self
+            .client
             .post(&self.config.endpoints.token)
             .form(&params)
             .send()
@@ -192,7 +193,8 @@ impl OAuthHandler {
 
     /// Get user info
     pub async fn get_user_info(&self, access_token: &str) -> Result<serde_json::Value> {
-        let response = self.client
+        let response = self
+            .client
             .get(&self.config.endpoints.userinfo)
             .bearer_auth(access_token)
             .send()
