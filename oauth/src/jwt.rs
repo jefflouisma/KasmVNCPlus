@@ -77,7 +77,12 @@ impl JwtValidator {
         let decoding_key = self.jwks_cache.get_key(&kid).await?;
 
         // Setup validation
-        let mut validation = Validation::new(header.alg);
+        let mut validation = Validation::new(jsonwebtoken::Algorithm::RS256);
+        validation.algorithms = vec![
+            jsonwebtoken::Algorithm::RS256,
+            jsonwebtoken::Algorithm::RS384,
+            jsonwebtoken::Algorithm::RS512,
+        ];
         validation.set_issuer(&[&self.issuer]);
         validation.set_audience(&[&self.audience]);
         validation.leeway = self.clock_skew_seconds as u64;
