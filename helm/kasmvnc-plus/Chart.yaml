@@ -1,0 +1,14 @@
+apiVersion: v2
+name: kasmvnc-plus
+description: KasmVNC Plus — Secure Enterprise Browser Platform
+type: application
+version: 1.0.0
+appVersion: "0.1.0"
+keywords:
+  - kasmvnc
+  - enterprise-browser
+  - secure-browsing
+  - vnc
+  - sso
+maintainers:
+  - name: KasmVNC Team

@@ -1,0 +1,134 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-session
+  labels:
+    app.kubernetes.io/name: kasmvnc-plus-session
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: session
+spec:
+  replicas: {{ .Values.session.autoscaling.minReplicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kasmvnc-plus-session
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: kasmvnc-plus-session
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      {{- if .Values.session.affinity.enabled }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: kasmvnc-plus-session
+                topologyKey: {{ .Values.session.affinity.topologyKey }}
+      {{- end }}
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+        - name: browser
+          image: "{{ .Values.session.image.repository }}:{{ .Values.session.image.tag }}"
+          imagePullPolicy: {{ .Values.session.image.pullPolicy }}
+          ports:
+            - containerPort: 8443
+              name: https
+          env:
+            - name: VNC_PW
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-vnc-credentials
+                  key: password
+            - name: VNC_USER
+              value: "kasmuser"
+            - name: OAUTH_CONFIG
+              value: /config/oauth.toml
+            - name: NOVNC_RECORDER_CONFIG
+              value: /config/novnc_recorder.toml
+            - name: SESSION_TIMEOUT_MINUTES
+              value: "{{ .Values.session.timeoutMinutes }}"
+            - name: CHROMIUM_MAX_CRASHES
+              value: "{{ .Values.session.chromium.maxCrashes }}"
+            - name: CHROMIUM_MEMORY_LIMIT
+              value: "{{ .Values.session.chromium.memoryLimit }}"
+          volumeMounts:
+            - name: config
+              mountPath: /config
+              readOnly: true
+            - name: recordings
+              mountPath: /recordings
+            - name: profiles
+              mountPath: /profiles
+            - name: tmp
+              mountPath: /tmp
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.session.livenessProbe.path }}
+              port: {{ .Values.session.livenessProbe.port }}
+              scheme: {{ .Values.session.livenessProbe.scheme }}
+            initialDelaySeconds: {{ .Values.session.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.session.livenessProbe.periodSeconds }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.session.readinessProbe.path }}
+              port: {{ .Values.session.readinessProbe.port }}
+              scheme: {{ .Values.session.readinessProbe.scheme }}
+            initialDelaySeconds: {{ .Values.session.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.session.readinessProbe.periodSeconds }}
+          resources:
+            {{- toYaml .Values.session.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop:
+                - ALL
+      volumes:
+        - name: config
+          configMap:
+            name: {{ .Release.Name }}-session-config
+        - name: recordings
+          {{- if .Values.recordings.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-recordings
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        - name: tmp
+          emptyDir:
+            sizeLimit: 512Mi
+        - name: profiles
+          {{- if .Values.profiles.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-profiles
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-session
+  labels:
+    app.kubernetes.io/name: kasmvnc-plus-session
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  annotations:
+    # Enable sticky sessions for WebSocket affinity
+    service.beta.kubernetes.io/aws-load-balancer-stickiness-type: "source_ip"
+spec:
+  type: {{ .Values.session.service.type }}
+  ports:
+    - port: {{ .Values.session.service.port }}
+      targetPort: https
+      protocol: TCP
+      name: https
+  selector:
+    app.kubernetes.io/name: kasmvnc-plus-session
+    app.kubernetes.io/instance: {{ .Release.Name }}

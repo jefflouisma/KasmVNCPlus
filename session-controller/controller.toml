@@ -1,0 +1,18 @@
+# Session Controller Configuration
+
+[database]
+url = "postgresql://kasmvnc:kasmvnc@localhost:5432/kasmvnc"
+max_connections = 10
+
+[server]
+port = 9090
+bind_address = "0.0.0.0"
+
+[auth]
+issuer_url = "https://keycloak.barleta.local/realms/kasmvnc"
+admin_role = "admin"
+
+[kubernetes]
+namespace = "kasmvnc"
+session_image = "kasmvncplus:hardened"
+service_account = "kasmvnc-session"

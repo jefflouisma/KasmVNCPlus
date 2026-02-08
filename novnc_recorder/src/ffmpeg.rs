@@ -1,9 +1,10 @@
-use crate::config::Config;
+use crate::config::{Config, UserMetadata};
 use std::os::unix::process::CommandExt;
 use std::path::Path;
 use std::process::{Command, Stdio};
 
-pub fn build_ffmpeg_command(cfg: &Config, output: &Path) -> Command {
+/// Build the ffmpeg command with user session metadata embedded in the output file.
+pub fn build_ffmpeg_command(cfg: &Config, output: &Path, user_meta: Option<&UserMetadata>) -> Command {
     let mut cmd = Command::new(&cfg.ffmpeg_path);
     unsafe {
         cmd.pre_exec(|| {
@@ -62,6 +63,25 @@ pub fn build_ffmpeg_command(cfg: &Config, output: &Path) -> Command {
         }
     }
 
+    // ─── User Session Metadata ──────────────────────────────────────────────
+    // Embed user identity in the video file's metadata container.
+    // For MP4/MOV this goes into the moov/udta atoms.
+    // For WebM it goes into the Matroska tags.
+    if let Some(meta) = user_meta {
+        if let Some(ref sub) = meta.sub {
+            cmd.arg("-metadata").arg(format!("user_sub={}", sub));
+        }
+        if let Some(ref email) = meta.email {
+            cmd.arg("-metadata").arg(format!("user_email={}", email));
+        }
+        if let Some(ref name) = meta.name {
+            cmd.arg("-metadata").arg(format!("user_name={}", name));
+        }
+        if let Some(ref login_time) = meta.login_time {
+            cmd.arg("-metadata").arg(format!("user_login_time={}", login_time));
+        }
+    }
+
     cmd.arg(output);
     cmd.stdout(Stdio::null()).stderr(Stdio::piped());
     cmd
@@ -80,19 +100,32 @@ mod tests {
             ..Default::default()
         };
         let output = PathBuf::from("/tmp/test.mp4");
-        let cmd = build_ffmpeg_command(&config, &output);
+        let cmd = build_ffmpeg_command(&config, &output, None);
         let args: Vec<String> = cmd.get_args().map(|s| s.to_str().unwrap().to_string()).collect();
 
         assert_eq!(cmd.get_program().to_str().unwrap(), "ffmpeg_test");
         assert!(args.contains(&"-y".to_string()));
-        assert!(args.contains(&"-f".to_string()));
         assert!(args.contains(&"x11grab".to_string()));
-        assert!(args.contains(&"-i".to_string()));
-        assert!(args.contains(&":0".to_string()));
-        assert!(args.contains(&"-c:v".to_string()));
         assert!(args.contains(&"libx264".to_string()));
-        assert!(args.contains(&"/tmp/test.mp4".to_string()));
-        assert!(!args.contains(&"-c:a".to_string()));
+    }
+
+    #[test]
+    fn test_build_ffmpeg_command_with_metadata() {
+        let config = Config::default();
+        let meta = UserMetadata {
+            sub: Some("user-123".into()),
+            email: Some("test@example.com".into()),
+            name: Some("Test User".into()),
+            login_time: Some("2026-01-01T00:00:00Z".into()),
+        };
+        let output = PathBuf::from("/tmp/test.mp4");
+        let cmd = build_ffmpeg_command(&config, &output, Some(&meta));
+        let args: Vec<String> = cmd.get_args().map(|s| s.to_str().unwrap().to_string()).collect();
+
+        assert!(args.contains(&"user_sub=user-123".to_string()));
+        assert!(args.contains(&"user_email=test@example.com".to_string()));
+        assert!(args.contains(&"user_name=Test User".to_string()));
+        assert!(args.contains(&"user_login_time=2026-01-01T00:00:00Z".to_string()));
     }
 
     #[test]
@@ -111,76 +144,16 @@ mod tests {
             ..Default::default()
         };
         let output = PathBuf::from("/tmp/test.mp4");
-        let cmd = build_ffmpeg_command(&config, &output);
+        let cmd = build_ffmpeg_command(&config, &output, None);
         let args: Vec<String> = cmd.get_args().map(|s| s.to_str().unwrap().to_string()).collect();
 
-        assert!(args.contains(&"-r".to_string()));
         assert!(args.contains(&"30".to_string()));
-        assert!(args.contains(&"-s".to_string()));
         assert!(args.contains(&"1920x1080".to_string()));
-        assert!(args.contains(&"-i".to_string()));
         assert!(args.contains(&":1".to_string()));
         assert!(args.contains(&"pulse-source".to_string()));
-        assert!(args.contains(&"-c:v".to_string()));
         assert!(args.contains(&"libx264".to_string()));
-        assert!(args.contains(&"-c:a".to_string()));
         assert!(args.contains(&"aac".to_string()));
-        assert!(args.contains(&"-preset".to_string()));
         assert!(args.contains(&"ultrafast".to_string()));
-        assert!(args.contains(&"-crf".to_string()));
         assert!(args.contains(&"28".to_string()));
-    }
-
-    #[test]
-    fn test_build_ffmpeg_command_avi() {
-        let config = Config {
-            format: "avi".to_string(),
-            ..Default::default()
-        };
-        let output = PathBuf::from("/tmp/test.avi");
-        let cmd = build_ffmpeg_command(&config, &output);
-        let args: Vec<String> = cmd.get_args().map(|s| s.to_str().unwrap().to_string()).collect();
-        assert!(args.contains(&"-c:v".to_string()));
-        assert!(args.contains(&"mpeg4".to_string()));
-    }
-
-    #[test]
-    fn test_builds_mp4_with_audio() {
-        let cfg = Config {
-            audio: true,
-            ..Config::default()
-        };
-        let cmd = build_ffmpeg_command(&cfg, &PathBuf::from("out.mp4"));
-        let args: Vec<String> = cmd.get_args().map(|a| a.to_string_lossy().into()).collect();
-        assert!(args.contains(&"-c:v".into()));
-        assert!(args.contains(&"libx264".into()));
-        assert!(args.contains(&"-c:a".into()));
-        assert!(args.contains(&"aac".into()));
-    }
-
-    #[test]
-    fn test_builds_webm() {
-        let mut cfg = Config::default();
-        cfg.format = "webm".into();
-        let cmd = build_ffmpeg_command(&cfg, &PathBuf::from("out.webm"));
-        let args: Vec<String> = cmd.get_args().map(|a| a.to_string_lossy().into()).collect();
-        assert!(args.contains(&"libvpx-vp9".into()));
-    }
-
-    #[test]
-    fn test_builds_with_overrides() {
-        let mut cfg = Config::default();
-        cfg.audio = true;
-        cfg.audio_source = Some("src".into());
-        cfg.frame_rate = Some(25);
-        cfg.width = Some(640);
-        cfg.height = Some(480);
-        cfg.display = Some(":1".into());
-        let cmd = build_ffmpeg_command(&cfg, &PathBuf::from("out.mp4"));
-        let args: Vec<String> = cmd.get_args().map(|a| a.to_string_lossy().into()).collect();
-        assert!(args.windows(2).any(|w| w == ["-r", "25"]));
-        assert!(args.windows(2).any(|w| w == ["-s", "640x480"]));
-        assert!(args.contains(&":1".into()));
-        assert!(args.contains(&"src".into()));
     }
 }

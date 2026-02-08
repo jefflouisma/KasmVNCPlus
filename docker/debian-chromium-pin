@@ -1,0 +1,7 @@
+Package: chromium chromium-common chromium-sandbox
+Pin: release n=bookworm
+Pin-Priority: 900
+
+Package: *
+Pin: release n=bookworm
+Pin-Priority: 500

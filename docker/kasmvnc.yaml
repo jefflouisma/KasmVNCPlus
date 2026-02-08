@@ -1,0 +1,13 @@
+network:
+  ssl:
+    pem_certificate: ${HOME}/.vnc/self.pem
+    pem_key: ${HOME}/.vnc/self.pem
+  websocket_port: 8444
+  interface: 0.0.0.0
+  udp:
+    public_ip: 127.0.0.1
+
+logging:
+  log_writer_name: all
+  log_dest: logfile
+  level: 30

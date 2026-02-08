@@ -1,0 +1,112 @@
+{{- if .Values.session.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .Release.Name }}-session
+  labels:
+    app.kubernetes.io/name: kasmvnc-plus-session
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Release.Name }}-session
+  minReplicas: {{ .Values.session.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.session.autoscaling.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.session.autoscaling.targetCPUUtilization }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.session.autoscaling.targetMemoryUtilization }}
+{{- end }}
+---
+{{- if .Values.session.pdb.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ .Release.Name }}-session
+  labels:
+    app.kubernetes.io/name: kasmvnc-plus-session
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  minAvailable: {{ .Values.session.pdb.minAvailable }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kasmvnc-plus-session
+      app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+---
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    app.kubernetes.io/name: kasmvnc-plus
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  annotations:
+    {{- toYaml .Values.ingress.annotations | nindent 4 }}
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  rules:
+    {{- range .Values.ingress.hosts }}
+    - host: {{ .host }}
+      http:
+        paths:
+          {{- range .paths }}
+          - path: {{ .path }}
+            pathType: {{ .pathType }}
+            backend:
+              service:
+                name: {{ $.Release.Name }}-session
+                port:
+                  number: {{ $.Values.session.service.port }}
+          {{- end }}
+    {{- end }}
+{{- end }}
+---
+{{- if .Values.recordings.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-recordings
+  labels:
+    app.kubernetes.io/name: kasmvnc-plus
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  accessModes:
+    - {{ .Values.recordings.persistence.accessMode }}
+  {{- if .Values.recordings.persistence.storageClass }}
+  storageClassName: {{ .Values.recordings.persistence.storageClass }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.recordings.persistence.size }}
+{{- end }}
+---
+{{- if .Values.profiles.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-profiles
+  labels:
+    app.kubernetes.io/name: kasmvnc-plus
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  accessModes:
+    - {{ .Values.profiles.persistence.accessMode }}
+  {{- if .Values.profiles.persistence.storageClass }}
+  storageClassName: {{ .Values.profiles.persistence.storageClass }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.profiles.persistence.size }}
+{{- end }}

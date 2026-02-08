@@ -6,21 +6,21 @@ edition = "2021"
 [dependencies]
 # Async runtime
 tokio = { version = "1.35", features = ["full"] }
-tokio-util = "0.7"
 
 # Web framework
 axum = { version = "0.7", features = ["ws"] }
 tower = "0.4"
 tower-http = { version = "0.5", features = ["cors", "trace"] }
 
-# HTTP client
-reqwest = { version = "0.11", features = ["json", "rustls-tls"] }
+# OpenID Connect (replaces hand-rolled jwt, jwks, pkce, handler)
+openidconnect = { version = "3", features = ["reqwest"] }
 
-# JWT handling
-jsonwebtoken = "9.2"
+# HTTP client (for reverse proxy to KasmVNC)
+reqwest = { version = "0.11", default-features = false, features = ["rustls-tls", "json", "stream"] }
 
-# WebSocket
-tokio-tungstenite = "0.21"
+# WebSocket proxy (upstream client to KasmVNC)
+tokio-tungstenite = { version = "0.24", features = ["native-tls"] }
+native-tls = "0.2"
 futures-util = "0.3"
 
 # Serialization
@@ -28,11 +28,9 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 toml = "0.8"
 
-# Cryptography
-sha2 = "0.10"
-base64 = "0.21"
-rand = "0.8"
-uuid = { version = "1.6", features = ["v4", "serde"] }
+# Session
+cookie = "0.18"
+uuid = { version = "1.6", features = ["v4"] }
 
 # Error handling
 thiserror = "1.0"
@@ -42,29 +40,14 @@ anyhow = "1.0"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
-# Time handling
+# Time
 chrono = { version = "0.4", features = ["serde"] }
 
 # URL handling
 url = "2.5"
-percent-encoding = "2.3"
-
-# Async traits
-async-trait = "0.1"
-
-# Cache
-moka = { version = "0.12", features = ["future"] }
-
-# Environment variables
-dotenv = "0.15"
-regex = "1.10"
 
 [dev-dependencies]
-# Testing
-mockito = "1.2"
-wiremock = "0.6"
 tower = { version = "0.4", features = ["util"] }
-hyper = { version = "1.0", features = ["full"] }
 
 [[bin]]
 name = "kasmvnc-oauth-server"

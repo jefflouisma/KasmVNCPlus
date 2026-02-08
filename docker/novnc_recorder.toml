@@ -1,0 +1,21 @@
+# novnc_recorder configuration
+# This file controls the session recording behavior.
+# Placed at /etc/novnc_recorder.toml inside the container.
+
+output_dir = "/recordings"
+format = "mp4"
+frame_rate = 10
+display = ":1"
+audio = false
+
+# ffmpeg encoding options
+preset = "ultrafast"
+crf = 28
+ffmpeg_path = "ffmpeg"
+
+# Session identity
+session_id_env = "KASM_SESSION_ID"
+
+# Path to user metadata JSON written by the OAuth server
+# The OAuth server writes {sub, email, name, login_time} here on successful login
+user_metadata_path = "/recordings/current_user.json"

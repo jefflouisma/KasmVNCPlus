@@ -1,0 +1,8 @@
+output_dir: /recordings
+format: mp4
+frame_rate: 10
+max_duration: 30
+display: ":1"
+ffmpeg_path: ffmpeg
+preset: ultrafast
+crf: 28

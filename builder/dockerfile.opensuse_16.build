@@ -1,0 +1,68 @@
+FROM opensuse/leap:16.0
+
+ENV KASMVNC_BUILD_OS opensuse
+ENV KASMVNC_BUILD_OS_CODENAME 16
+ENV XORG_VER 21.1.15
+
+# Install depends
+RUN zypper install -ny \
+  bdftopcf \
+  ninja \
+  nasm \
+  curl \
+  ffmpeg-4-libavcodec-devel \
+  ffmpeg-4-libswscale-devel \
+  ffmpeg-4-libavformat-devel \
+  fonttosfnt \
+  font-util \
+  gcc15 \
+  gcc15-c++ \
+  cmake \
+  giflib-devel \
+  git \
+  gzip \
+  libbz2-devel \
+  libgbm-devel \
+  libgnutls-devel \
+  libopenssl-devel \
+  libpng16-devel \
+  libpnglite0 \
+  png++-devel \
+  libtiff-devel \
+  libXfont2-devel \
+  libxkbcommon-x11-devel \
+  libxshmfence-devel \
+  make \
+  Mesa-dri \
+  Mesa-libglapi-devel \
+  Mesa-libGL-devel \
+  mkfontscale \
+  patch \
+  tigervnc \
+  wget \
+  libXcursor-devel \
+  libXrandr-devel \
+  libXtst-devel \
+  libX11-devel \
+  xorgproto-devel \
+  xorg-x11-util-devel \
+  xorg-x11-server-sdk \
+  xorg-x11-util-devel \
+  zlib-devel \
+  libva-devel
+
+RUN useradd -u 1000 docker && \
+  usermod -a -G docker docker
+
+ENV SCRIPTS_DIR=/tmp/scripts
+ENV CC=/usr/bin/gcc-15
+ENV CXX=/usr/bin/g++-15
+ENV PKG_CONFIG_PATH=/usr/local/lib64/pkgconfig:/usr/local/lib/pkgconfig
+
+COPY builder/scripts $SCRIPTS_DIR
+RUN $SCRIPTS_DIR/build-deps.sh
+
+COPY --chown=docker:docker . /src/
+
+USER docker
+ENTRYPOINT ["bash", "-l", "-c", "/src/builder/build.sh"]

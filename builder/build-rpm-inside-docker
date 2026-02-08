@@ -1,0 +1,57 @@
+#!/bin/bash
+
+set -e
+
+prepare_build_env() {
+  rpmdev-setuptree
+  copy_spec_and_tar_with_binaries
+  copy_rpmlintrc
+}
+
+copy_spec_and_tar_with_binaries() {
+  cp /tmp/*.spec ~/rpmbuild/SPECS/
+  cp /src/builder/build/kasmvnc.${os}_${os_codename}.tar.gz \
+    ~/rpmbuild/SOURCES/
+}
+
+copy_rpmlintrc() {
+  cp /src/builder/rpmlintrc ~/.rpmlintrc
+}
+
+is_rpmlint_toml_config() {
+  rpmlint --version | grep -qF 2.
+}
+
+copy_rpm_to_build_dir() {
+  cd /src/builder && \
+    mkdir -p "$os_dir" && cp ~/rpmbuild/RPMS/*/*.rpm ${os_dir}
+}
+
+rpmlint_with_config_loaded() {
+  rpmlint -c ~/.rpmlintrc "$os_dir"/*.rpm
+}
+
+rpmlint_without_config_loaded() {
+  rpmlint "$os_dir"/*.rpm
+}
+
+cd "$(dirname "$0")/.."
+
+if [ -z ${KASMVNC_BUILD_OS_CODENAME+x} ]; then
+  os=$(lsb_release -is | tr '[:upper:]' '[:lower:]')
+  os_codename=$(lsb_release -cs | tr '[:upper:]' '[:lower:]')
+else
+  os=${KASMVNC_BUILD_OS}
+  os_codename=${KASMVNC_BUILD_OS_CODENAME}
+fi
+os_dir="build/${os}_${os_codename}"
+
+prepare_build_env
+rpmbuild -ba ~/rpmbuild/SPECS/*.spec
+copy_rpm_to_build_dir
+
+if is_rpmlint_toml_config; then
+  rpmlint_with_config_loaded || true
+else
+  rpmlint_without_config_loaded || true
+fi
