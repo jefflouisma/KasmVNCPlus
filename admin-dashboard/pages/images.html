@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>KasmVNC Plus Image Registry</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1313ec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101022",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope"]
+                    },
+                    borderRadius: { "DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; }
+        .glass-card {
+            background: rgba(40, 40, 57, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+        .glass-card:hover {
+            transform: scale(1.02);
+            border-color: rgba(19, 19, 236, 0.5);
+            box-shadow: 0 0 20px rgba(19, 19, 236, 0.2);
+        }
+        .modal-overlay {
+            background: rgba(8, 8, 18, 0.85);
+            backdrop-filter: blur(8px);
+        }
+        .primary-gradient {
+            background: linear-gradient(135deg, #1313ec 0%, #6366f1 100%);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 antialiased overflow-hidden">
+<div class="flex h-screen w-full">
+<!-- Sidebar -->
+<aside class="w-64 flex flex-col border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111118] shrink-0">
+<div class="p-6 flex flex-col gap-6 h-full">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-primary flex items-center justify-center text-white">
+<span class="material-symbols-outlined">auto_awesome</span>
+</div>
+<div class="flex flex-col">
+<h1 class="text-base font-bold leading-tight">KasmVNC Plus</h1>
+<p class="text-slate-500 dark:text-slate-400 text-xs">Enterprise Admin</p>
+</div>
+</div>
+<nav class="flex flex-col gap-1 grow">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="/admin">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined">desktop_windows</span>
+<span class="text-sm font-medium">Workspaces</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary dark:bg-primary dark:text-white" href="/admin/images">
+<span class="material-symbols-outlined">layers</span>
+<span class="text-sm font-bold">Images</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="/admin/users">
+<span class="material-symbols-outlined">group</span>
+<span class="text-sm font-medium">Users</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="/admin/settings">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined">article</span>
+<span class="text-sm font-medium">Logs</span>
+</a>
+</nav>
+<div class="mt-auto">
+<button class="w-full py-2.5 px-4 rounded-lg bg-slate-100 dark:bg-slate-800 text-sm font-semibold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                    Support
+                </button>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col h-full overflow-hidden">
+<!-- Header -->
+<header class="h-20 flex items-center justify-between px-8 border-b border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-[#111118]/50 backdrop-blur-sm">
+<div class="flex items-center gap-8 w-1/2">
+<h2 class="text-xl font-bold tracking-tight">Image Registry</h2>
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+<input class="w-full bg-slate-100 dark:bg-[#282839] border-none rounded-xl pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary" placeholder="Search workspace images..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="flex items-center gap-2 primary-gradient text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-primary/25">
+<span class="material-symbols-outlined text-[20px]">add</span>
+<span>Add Image</span>
+</button>
+<div class="flex gap-2">
+<button class="p-2.5 rounded-xl bg-slate-100 dark:bg-[#282839] text-slate-600 dark:text-slate-300">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="size-10 rounded-full bg-cover bg-center ring-2 ring-primary/20" data-alt="Administrator user profile picture" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC9FRP8KBpBRF3n8vDtbDDUMc454xKWzuqhXm-U7Nr46NNM0PUuD847C0uF9eE9_XnyN4hgWkJDb2IJFYc0qiJWOa46coiM5QVFM17YX22r78QtsPq_ID9hKZwHJtdUuBFFd414iD1Fsq-xpxv5pOG6eJbuzqPvN_41dhqmLe6VHDx_VyCdXMnAhaQf0J9bfpEMrr9NP9hyHqoW4QhNT-zGnfJ82TG-jqO8H6FgNlGWBy2ImbyW48v5GQF6jRmQ-CSZPILKL8dRLon0')"></div>
+</div>
+</div>
+</header>
+<!-- Content Area -->
+<div class="flex-1 overflow-y-auto p-8 bg-background-light dark:bg-[#101022]">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+<!-- Card 1: Chrome -->
+<div class="glass-card p-5 rounded-xl flex flex-col gap-4 relative">
+<div class="flex justify-between items-start">
+<div class="size-14 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 overflow-hidden">
+<div class="w-10 h-10 bg-center bg-contain bg-no-repeat" data-alt="Google Chrome browser colorful logo" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA9gtEQ2b7QnjR38rp9vsU2tWdVOzeynpZSCRGOp1jhaifMZs5qH-17Di0vM5G9SKJKpP7rJw_0TsDPJx9Jnwp75LbHckXuX6JYiAxTTdTeLbM2Sf1rQuxg7334RKrED7Mcpecn1VfrkwNKpGqxZel-0YdTLVV4700ov53LsRCEjq1LfdqIFW_hKV1QrqQ7EuCHatZqrZYvxGCihqeKDfrz5093QuK-k4btgUi6TDl0kj9N5VJrS184Qpoz-gTRfIkeGQZ8zz8r_wyB')"></div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-slate-400 dark:bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div>
+<h3 class="text-lg font-bold">Google Chrome</h3>
+<code class="text-xs text-primary dark:text-blue-400 bg-primary/5 dark:bg-primary/20 px-1.5 py-0.5 rounded">kasmvnc/chrome:1.0</code>
+<p class="text-sm text-slate-500 dark:text-slate-400 mt-2 line-clamp-2">Enterprise-ready Chrome browser with sandboxing and extension pre-configuration.</p>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="px-2 py-1 rounded bg-slate-200 dark:bg-slate-800 text-[10px] font-bold uppercase tracking-wider">Browser</span>
+<span class="px-2 py-1 rounded bg-slate-200 dark:bg-slate-800 text-[10px] font-bold uppercase tracking-wider">Office</span>
+</div>
+<div class="mt-auto pt-4 border-t border-white/5 flex items-center justify-between text-slate-500 dark:text-slate-400">
+<div class="flex items-center gap-1.5 text-xs">
+<span class="material-symbols-outlined text-[16px]">memory</span>
+<span>2 Cores</span>
+</div>
+<div class="flex items-center gap-1.5 text-xs">
+<span class="material-symbols-outlined text-[16px]">data_usage</span>
+<span>4GB RAM</span>
+</div>
+</div>
+</div>
+<!-- Card 2: VS Code -->
+<div class="glass-card p-5 rounded-xl flex flex-col gap-4 relative">
+<div class="flex justify-between items-start">
+<div class="size-14 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 overflow-hidden">
+<div class="w-10 h-10 bg-center bg-contain bg-no-repeat" data-alt="Visual Studio Code blue editor logo" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDh8Rf5rE21tumiy-1JEbu5UofknmcV-BJcvhHFgnlovYsYWk_EW_UXlfZbswwf7AtClehQr_mleIx0OlUYw_34PCZc0v7xPl6uX_mPAF357xIXE8oe5jAFF9E54kVQtDFhfjVUD6hkA3FxcSh8ufI9297Ju4f4BiivzaK9bKQJ2J5ifnsS3XKl8BqzRtt84IVhmbM3Hn0Z0neVHQnUSjZJwccRU9kbHQei7iRIGUdQLM2RVMtGMrFGQucw7VSVe_Ik88Qrj5bsDKOQ')"></div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-slate-400 dark:bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div>
+<h3 class="text-lg font-bold">VS Code Server</h3>
+<code class="text-xs text-primary dark:text-blue-400 bg-primary/5 dark:bg-primary/20 px-1.5 py-0.5 rounded">kasmvnc/vscode:1.82</code>
+<p class="text-sm text-slate-500 dark:text-slate-400 mt-2 line-clamp-2">Complete development environment accessible via browser with full extension support.</p>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="px-2 py-1 rounded bg-slate-200 dark:bg-slate-800 text-[10px] font-bold uppercase tracking-wider">Dev</span>
+<span class="px-2 py-1 rounded bg-slate-200 dark:bg-slate-800 text-[10px] font-bold uppercase tracking-wider">IDE</span>
+</div>
+<div class="mt-auto pt-4 border-t border-white/5 flex items-center justify-between text-slate-500 dark:text-slate-400">
+<div class="flex items-center gap-1.5 text-xs">
+<span class="material-symbols-outlined text-[16px]">memory</span>
+<span>4 Cores</span>
+</div>
+<div class="flex items-center gap-1.5 text-xs">
+<span class="material-symbols-outlined text-[16px]">data_usage</span>
+<span>8GB RAM</span>
+</div>
+</div>
+</div>
+<!-- Card 3: Kali Linux -->
+<div class="glass-card p-5 rounded-xl flex flex-col gap-4 relative">
+<div class="flex justify-between items-start">
+<div class="size-14 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 overflow-hidden">
+<div class="w-10 h-10 bg-center bg-contain bg-no-repeat" data-alt="Kali Linux dragon logo" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD086N6zsli9EtKAC94sOkqtelZv1TvD9wRp0xVT5hRHP3WwCPzSOpJEpRUvqcSO-NfAQ84sT5r8UQ2aEkm69-Pt_0zPvPUr7Ai2EXFKuSZ83jiQVxAIhakc8f-dBlTfBwH0ZMFRQHC76mu7CPN3F46sxb4SgFGKcxt4hLTqwbs8mOVEBcy_4MijR4BsCjOSczNFdwBrRN-5RJDI8hDlklteXlXn9WUswd96H_GUjD8vhyg4OoTkw-6fm4irENmWP2W--bzpyYLSeRD')"></div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-slate-400 dark:bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div>
+<h3 class="text-lg font-bold">Kali Linux</h3>
+<code class="text-xs text-primary dark:text-blue-400 bg-primary/5 dark:bg-primary/20 px-1.5 py-0.5 rounded">kasmvnc/kali:latest</code>
+<p class="text-sm text-slate-500 dark:text-slate-400 mt-2 line-clamp-2">Advanced penetration testing and security auditing platform in a container.</p>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="px-2 py-1 rounded bg-slate-200 dark:bg-slate-800 text-[10px] font-bold uppercase tracking-wider">Security</span>
+<span class="px-2 py-1 rounded bg-slate-200 dark:bg-slate-800 text-[10px] font-bold uppercase tracking-wider">OS</span>
+</div>
+<div class="mt-auto pt-4 border-t border-white/5 flex items-center justify-between text-slate-500 dark:text-slate-400">
+<div class="flex items-center gap-1.5 text-xs">
+<span class="material-symbols-outlined text-[16px]">memory</span>
+<span>2 Cores</span>
+</div>
+<div class="flex items-center gap-1.5 text-xs">
+<span class="material-symbols-outlined text-[16px]">data_usage</span>
+<span>2GB RAM</span>
+</div>
+</div>
+</div>
+<!-- Card 4: Firefox -->
+<div class="glass-card p-5 rounded-xl flex flex-col gap-4 relative">
+<div class="flex justify-between items-start">
+<div class="size-14 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 overflow-hidden">
+<div class="w-10 h-10 bg-center bg-contain bg-no-repeat" data-alt="Mozilla Firefox fox logo" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC8N64_0oa3A9C_PZOhlvfbSczi6UPhQ4ZGQbWyU-Gwi4r_tZV3OFJwY6segE4pJbE8evrenk_h-_I06kmgYUWDTlOsVC9scCYtfriaIeC8lGNl5tzHw8AwZ5UFR4exnh4zx5aNZKL60HNG33lgrEWHTbfB8Uzf2fNo3DoWEMM3znoFs61SyB_B-zMD0S0Qjug6EsujJWC8o5Ybm6xKAbWJaYhTcMKG2knEMDQmMM_0tsUGTfThavpay0K6dyla5rNL7aisvHzKzDBN')"></div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-slate-400 dark:bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div>
+<h3 class="text-lg font-bold">Firefox</h3>
+<code class="text-xs text-primary dark:text-blue-400 bg-primary/5 dark:bg-primary/20 px-1.5 py-0.5 rounded">kasmvnc/firefox:1.0</code>
+<p class="text-sm text-slate-500 dark:text-slate-400 mt-2 line-clamp-2">Standard Firefox installation with privacy hardening and custom policies.</p>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="px-2 py-1 rounded bg-slate-200 dark:bg-slate-800 text-[10px] font-bold uppercase tracking-wider">Browser</span>
+</div>
+<div class="mt-auto pt-4 border-t border-white/5 flex items-center justify-between text-slate-500 dark:text-slate-400">
+<div class="flex items-center gap-1.5 text-xs">
+<span class="material-symbols-outlined text-[16px]">memory</span>
+<span>1 Core</span>
+</div>
+<div class="flex items-center gap-1.5 text-xs">
+<span class="material-symbols-outlined text-[16px]">data_usage</span>
+<span>2GB RAM</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Add Image Modal -->
+<div class="fixed inset-0 z-50 flex items-center justify-center modal-overlay p-4">
+<div class="bg-white dark:bg-[#111118] border border-slate-200 dark:border-slate-800 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden">
+<div class="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+<h2 class="text-xl font-bold">Register New Image</h2>
+<button class="text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="p-8">
+<form class="flex flex-col gap-6">
+<div class="grid grid-cols-2 gap-6">
+<div class="flex flex-col gap-1.5">
+<label class="text-sm font-semibold text-slate-600 dark:text-slate-400">Display Name</label>
+<input class="bg-slate-50 dark:bg-[#282839] border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary" placeholder="e.g. Ubuntu Desktop" type="text"/>
+</div>
+<div class="flex flex-col gap-1.5">
+<label class="text-sm font-semibold text-slate-600 dark:text-slate-400">Docker Image Path</label>
+<input class="bg-slate-50 dark:bg-[#282839] border-none rounded-xl px-4 py-2.5 text-sm font-mono focus:ring-2 focus:ring-primary" placeholder="repository/image:tag" type="text"/>
+</div>
+</div>
+<div class="flex flex-col gap-1.5">
+<label class="text-sm font-semibold text-slate-600 dark:text-slate-400">Description</label>
+<textarea class="bg-slate-50 dark:bg-[#282839] border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary" placeholder="Describe the workspace purpose..." rows="3"></textarea>
+</div>
+<div class="flex flex-col gap-1.5">
+<label class="text-sm font-semibold text-slate-600 dark:text-slate-400">Categories</label>
+<div class="flex flex-wrap gap-2 bg-slate-50 dark:bg-[#282839] p-3 rounded-xl min-h-[46px]">
+<span class="flex items-center gap-1 bg-primary text-white text-[11px] font-bold px-2 py-1 rounded-full">
+                            BROWSER <span class="material-symbols-outlined text-[12px] cursor-pointer">close</span>
+</span>
+<span class="flex items-center gap-1 bg-primary text-white text-[11px] font-bold px-2 py-1 rounded-full">
+                            DEV <span class="material-symbols-outlined text-[12px] cursor-pointer">close</span>
+</span>
+<button class="text-slate-400 text-xs px-2 py-1 hover:text-primary">+ Add Category</button>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-8 py-4">
+<div class="flex flex-col gap-3">
+<div class="flex justify-between items-center">
+<label class="text-sm font-semibold text-slate-600 dark:text-slate-400">CPU Limit</label>
+<span class="text-primary font-bold text-sm">4 Cores</span>
+</div>
+<input class="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-primary" type="range"/>
+</div>
+<div class="flex flex-col gap-3">
+<div class="flex justify-between items-center">
+<label class="text-sm font-semibold text-slate-600 dark:text-slate-400">Memory Limit</label>
+<span class="text-primary font-bold text-sm">8 GB</span>
+</div>
+<input class="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-primary" type="range"/>
+</div>
+</div>
+<div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800 mt-2">
+<button class="px-6 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" type="button">Cancel</button>
+<button class="px-8 py-2.5 rounded-xl text-sm font-bold text-white primary-gradient shadow-lg shadow-primary/20" type="submit">Register Image</button>
+</div>
+</form>
+</div>
+</div>
+</div>
+</body></html>

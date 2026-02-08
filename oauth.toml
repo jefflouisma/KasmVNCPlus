@@ -1,0 +1,25 @@
+# KasmVNC Plus OAuth Configuration
+# Simplified for openidconnect crate — only needs issuer URL, client ID/secret, and server settings
+
+[provider]
+# Public issuer URL (used in browser redirects and token validation)
+issuer_url = "http://localhost:8089/realms/test"
+# Internal issuer URL for OIDC discovery from inside the container (Rancher Desktop Lima VM)
+internal_issuer_url = "http://keycloak-local:8080/realms/test"
+# NOTE: When using --network host, no internal_issuer_url needed (localhost works directly)
+
+[client]
+client_id = "kasmvnc"
+client_secret = "ZUbKnqIGpFkIvn7WN1rDREag8Y7pV34x"
+redirect_uri = "http://localhost:8888/auth/callback"
+scopes = ["openid", "profile", "email"]
+
+[server]
+port = 8888
+bind_address = "0.0.0.0"
+# KasmVNC upstream (internal, no auth)
+vnc_upstream = "https://127.0.0.1:8444"
+
+[recorder]
+output_dir = "/recordings"
+script_path = "/opt/kasmweb/bin/record-session.sh"

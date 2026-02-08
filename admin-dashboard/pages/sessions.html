@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>KasmVNC Plus Sessions Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1313ec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101022",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .table-row-hover:hover {
+            background: rgba(19, 19, 236, 0.05);
+        }
+        .primary-gradient {
+            background: linear-gradient(135deg, #1313ec 0%, #6366f1 100%);
+        }
+    </style>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="flex h-screen overflow-hidden">
+<!-- Sidebar -->
+<aside class="w-64 flex-shrink-0 bg-background-dark/50 border-r border-white/5 flex flex-col justify-between p-4">
+<div class="flex flex-col gap-8">
+<div class="flex items-center gap-3 px-2">
+<div class="bg-primary p-1.5 rounded-lg">
+<span class="material-symbols-outlined text-white text-2xl">captive_portal</span>
+</div>
+<div class="flex flex-col">
+<h1 class="text-white text-base font-bold leading-none">KasmVNC Plus</h1>
+<p class="text-slate-500 text-xs mt-1">Enterprise Browser</p>
+</div>
+</div>
+<nav class="flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-white/5 transition-colors" href="/admin">
+<span class="material-symbols-outlined text-[22px]">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary text-white shadow-lg shadow-primary/20" href="/admin/sessions">
+<span class="material-symbols-outlined text-[22px] fill-current">monitor_heart</span>
+<span class="text-sm font-semibold">Sessions</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-white/5 transition-colors" href="/admin/images">
+<span class="material-symbols-outlined text-[22px]">layers</span>
+<span class="text-sm font-medium">Images</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-white/5 transition-colors" href="/admin/policies">
+<span class="material-symbols-outlined text-[22px]">shield_lock</span>
+<span class="text-sm font-medium">Policies</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-white/5 transition-colors" href="/admin/sessions">
+<span class="material-symbols-outlined text-[22px]">hub</span>
+<span class="text-sm font-medium">Nodes</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-white/5 transition-colors" href="/admin/settings">
+<span class="material-symbols-outlined text-[22px]">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</a>
+</nav>
+</div>
+<div class="flex flex-col gap-4">
+<div class="glass-panel p-3 rounded-xl flex items-center gap-3">
+<div class="h-8 w-8 rounded-full bg-slate-700 flex items-center justify-center overflow-hidden">
+<img class="h-full w-full object-cover" data-alt="Admin user avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDlZK-OXwYc5rVcAtneyq_-5jUviDgXLTByl0XsF9uUjb8wywnTfM3g353wqD-koNWy4dkjL0t7JCehnZ0Y035xi5w2PJ-OwNa-Rf9g1Yl8lzvYuKKJokD2iLJAvkvjea-GeDBGrrk918pCwg8yzJepUZ8uJfxnkVSz_94RvqpNFMYvAvQ9gfp1cjI3G-S8MEfJofNW5COazBdn3xE2_jy2ldkV8IMZYwVfbelLT6MAHjE5si9Z02aqWSpOrm-lmULNSzxXUG1H3PXr"/>
+</div>
+<div class="flex flex-col">
+<span class="text-xs font-bold text-white">System Admin</span>
+<span class="text-[10px] text-slate-500">Global Admin</span>
+</div>
+</div>
+<button class="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg border border-white/10 text-slate-400 hover:text-white hover:bg-white/5 transition-all">
+<span class="material-symbols-outlined text-sm">logout</span>
+<span class="text-xs font-bold uppercase tracking-wider">Log Out</span>
+</button>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col overflow-hidden">
+<!-- Header -->
+<header class="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-background-dark/30 backdrop-blur-md">
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 text-slate-400 text-sm">
+<span class="material-symbols-outlined text-base">admin_panel_settings</span>
+<span>Admin</span>
+<span class="text-slate-600">/</span>
+<span class="text-white font-semibold">Sessions Management</span>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-6 pr-6 border-r border-white/5">
+<a class="text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-primary transition-colors" href="#">Cluster Health</a>
+<a class="text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-primary transition-colors" href="#">Logs</a>
+</div>
+<div class="flex items-center gap-3">
+<button class="relative h-9 w-9 flex items-center justify-center rounded-lg bg-white/5 text-slate-400 hover:text-white hover:bg-white/10">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 h-2 w-2 bg-red-500 rounded-full"></span>
+</button>
+<button class="h-9 w-9 flex items-center justify-center rounded-lg bg-white/5 text-slate-400 hover:text-white hover:bg-white/10">
+<span class="material-symbols-outlined">help</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Content Area -->
+<div class="flex-1 overflow-y-auto p-8 bg-gradient-to-br from-background-dark via-background-dark to-slate-900/50">
+<!-- Page Title -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+<div>
+<h2 class="text-3xl font-black text-white tracking-tight">Sessions Management</h2>
+<p class="text-slate-400 mt-2 text-sm max-w-lg">Monitor and control active browser workloads across your secure global infrastructure. Manage resource allocation and lifecycle policies.</p>
+</div>
+<button class="primary-gradient text-white px-6 py-3 rounded-xl font-bold text-sm shadow-xl shadow-primary/30 flex items-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all">
+<span class="material-symbols-outlined">add</span>
+                        Create Session
+                    </button>
+</div>
+<!-- Stats Summary -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+<div class="glass-panel p-4 rounded-xl flex items-center gap-4">
+<div class="h-12 w-12 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+<span class="material-symbols-outlined">bolt</span>
+</div>
+<div>
+<p class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Active</p>
+<h3 class="text-xl font-black text-white">1,284</h3>
+</div>
+</div>
+<div class="glass-panel p-4 rounded-xl flex items-center gap-4">
+<div class="h-12 w-12 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-500">
+<span class="material-symbols-outlined">hourglass_empty</span>
+</div>
+<div>
+<p class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Idle</p>
+<h3 class="text-xl font-black text-white">42</h3>
+</div>
+</div>
+<div class="glass-panel p-4 rounded-xl flex items-center gap-4">
+<div class="h-12 w-12 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500">
+<span class="material-symbols-outlined">router</span>
+</div>
+<div>
+<p class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Total Pods</p>
+<h3 class="text-xl font-black text-white">1,348</h3>
+</div>
+</div>
+<div class="glass-panel p-4 rounded-xl flex items-center gap-4">
+<div class="h-12 w-12 rounded-lg bg-red-500/10 flex items-center justify-center text-red-500">
+<span class="material-symbols-outlined">running_with_errors</span>
+</div>
+<div>
+<p class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Critical Alerts</p>
+<h3 class="text-xl font-black text-white">3</h3>
+</div>
+</div>
+</div>
+<!-- Action Bar -->
+<div class="flex flex-col lg:flex-row items-center justify-between gap-4 mb-6">
+<div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+<div class="relative flex-1 min-w-[280px]">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">search</span>
+<input class="w-full bg-white/5 border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:ring-primary focus:border-primary" placeholder="Search by User Email or Pod ID..." type="text"/>
+</div>
+<select class="bg-white/5 border-white/10 rounded-xl px-4 py-2.5 text-sm text-slate-300 min-w-[140px] focus:ring-primary focus:border-primary">
+<option>Status: All</option>
+<option>Active</option>
+<option>Idle</option>
+<option>Terminated</option>
+<option>Pending</option>
+</select>
+<select class="bg-white/5 border-white/10 rounded-xl px-4 py-2.5 text-sm text-slate-300 min-w-[140px] focus:ring-primary focus:border-primary">
+<option>Filter: Node</option>
+<option>node-west-01</option>
+<option>node-east-02</option>
+<option>node-eu-01</option>
+</select>
+</div>
+<div class="flex items-center gap-2 w-full lg:w-auto justify-end">
+<button class="h-10 px-4 rounded-xl border border-white/10 text-slate-400 hover:text-white hover:bg-white/5 text-sm font-semibold flex items-center gap-2 transition-all">
+<span class="material-symbols-outlined text-base">download</span>
+                            Export CSV
+                        </button>
+<button class="h-10 px-4 rounded-xl border border-white/10 text-slate-400 hover:text-white hover:bg-white/5 text-sm font-semibold flex items-center gap-2 transition-all">
+<span class="material-symbols-outlined text-base">refresh</span>
+                            Refresh
+                        </button>
+</div>
+</div>
+<!-- Data Table Container -->
+<div class="glass-panel rounded-xl overflow-hidden border border-white/5">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-white/[0.02] border-b border-white/5">
+<th class="p-4 w-10">
+<input class="rounded bg-white/10 border-white/20 text-primary focus:ring-offset-background-dark" type="checkbox"/>
+</th>
+<th class="p-4 text-[11px] font-bold uppercase tracking-widest text-slate-500">User Email</th>
+<th class="p-4 text-[11px] font-bold uppercase tracking-widest text-slate-500">Status</th>
+<th class="p-4 text-[11px] font-bold uppercase tracking-widest text-slate-500">Pod Name</th>
+<th class="p-4 text-[11px] font-bold uppercase tracking-widest text-slate-500">Node</th>
+<th class="p-4 text-[11px] font-bold uppercase tracking-widest text-slate-500">Image</th>
+<th class="p-4 text-[11px] font-bold uppercase tracking-widest text-slate-500">Policy</th>
+<th class="p-4 text-[11px] font-bold uppercase tracking-widest text-slate-500">Started</th>
+<th class="p-4 text-[11px] font-bold uppercase tracking-widest text-slate-500">Duration</th>
+<th class="p-4 text-[11px] font-bold uppercase tracking-widest text-slate-500 text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-white/5">
+<!-- Row 1 Active -->
+<tr class="table-row-hover transition-colors">
+<td class="p-4"><input class="rounded bg-white/10 border-white/20 text-primary" type="checkbox"/></td>
+<td class="p-4">
+<div class="flex flex-col">
+<span class="text-sm font-semibold text-white">jason.miller@kasm.com</span>
+<span class="text-[10px] text-slate-500 font-mono">ID: 8v2-9k1l</span>
+</div>
+</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-[10px] font-bold uppercase tracking-tighter border border-emerald-500/20">
+<span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                            Active
+                                        </span>
+</td>
+<td class="p-4 text-sm text-slate-300">kasm-vnc-x82</td>
+<td class="p-4 text-sm text-slate-400">node-west-01</td>
+<td class="p-4">
+<span class="text-xs bg-white/5 border border-white/10 px-2 py-0.5 rounded text-slate-400 italic">ubuntu-desktop-22.04</span>
+</td>
+<td class="p-4 text-sm text-slate-400">Restricted-Web</td>
+<td class="p-4 text-xs text-slate-400">Oct 24, 14:20</td>
+<td class="p-4 text-sm font-mono text-slate-300">02h 15m</td>
+<td class="p-4 text-right">
+<div class="flex items-center justify-end gap-2">
+<button class="h-8 w-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10" title="View Details">
+<span class="material-symbols-outlined text-lg">visibility</span>
+</button>
+<button class="h-8 w-8 rounded-lg flex items-center justify-center text-red-500 hover:bg-red-500/10 border border-transparent hover:border-red-500/20" title="Terminate">
+<span class="material-symbols-outlined text-lg">cancel</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2 Idle -->
+<tr class="table-row-hover transition-colors">
+<td class="p-4"><input class="rounded bg-white/10 border-white/20 text-primary" type="checkbox"/></td>
+<td class="p-4">
+<div class="flex flex-col">
+<span class="text-sm font-semibold text-white">sarah.chen@global.io</span>
+<span class="text-[10px] text-slate-500 font-mono">ID: a2x-1p5m</span>
+</div>
+</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-500 text-[10px] font-bold uppercase tracking-tighter border border-amber-500/20">
+<span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+                                            Idle
+                                        </span>
+</td>
+<td class="p-4 text-sm text-slate-300">kasm-vnc-x41</td>
+<td class="p-4 text-sm text-slate-400">node-east-02</td>
+<td class="p-4">
+<span class="text-xs bg-white/5 border border-white/10 px-2 py-0.5 rounded text-slate-400 italic">centos-stream-9</span>
+</td>
+<td class="p-4 text-sm text-slate-400">Dev-Sandbox</td>
+<td class="p-4 text-xs text-slate-400">Oct 24, 09:12</td>
+<td class="p-4 text-sm font-mono text-slate-300">07h 23m</td>
+<td class="p-4 text-right">
+<div class="flex items-center justify-end gap-2">
+<button class="h-8 w-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10">
+<span class="material-symbols-outlined text-lg">visibility</span>
+</button>
+<button class="h-8 w-8 rounded-lg flex items-center justify-center text-red-500 hover:bg-red-500/10 border border-transparent hover:border-red-500/20">
+<span class="material-symbols-outlined text-lg">cancel</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3 Pending -->
+<tr class="table-row-hover transition-colors">
+<td class="p-4"><input class="rounded bg-white/10 border-white/20 text-primary" type="checkbox"/></td>
+<td class="p-4">
+<div class="flex flex-col">
+<span class="text-sm font-semibold text-white">mark.vogel@corp.net</span>
+<span class="text-[10px] text-slate-500 font-mono">ID: q9u-0v4z</span>
+</div>
+</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-500/10 text-slate-400 text-[10px] font-bold uppercase tracking-tighter border border-slate-500/20">
+<span class="h-1.5 w-1.5 rounded-full bg-slate-500"></span>
+                                            Pending
+                                        </span>
+</td>
+<td class="p-4 text-sm text-slate-300">kasm-vnc-w02</td>
+<td class="p-4 text-sm text-slate-400">node-eu-01</td>
+<td class="p-4">
+<span class="text-xs bg-white/5 border border-white/10 px-2 py-0.5 rounded text-slate-400 italic">windows-10-pro</span>
+</td>
+<td class="p-4 text-sm text-slate-400">Full-Access</td>
+<td class="p-4 text-xs text-slate-400">Oct 24, 16:34</td>
+<td class="p-4 text-sm font-mono text-slate-300">--</td>
+<td class="p-4 text-right">
+<div class="flex items-center justify-end gap-2">
+<button class="h-8 w-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10">
+<span class="material-symbols-outlined text-lg">visibility</span>
+</button>
+<button class="h-8 w-8 rounded-lg flex items-center justify-center text-red-500 hover:bg-red-500/10 border border-transparent hover:border-red-500/20">
+<span class="material-symbols-outlined text-lg">cancel</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 4 Terminated -->
+<tr class="table-row-hover transition-colors opacity-60 grayscale-[0.3]">
+<td class="p-4"><input class="rounded bg-white/10 border-white/20 text-primary" disabled="" type="checkbox"/></td>
+<td class="p-4">
+<div class="flex flex-col">
+<span class="text-sm font-semibold text-slate-400">elisa.smith@tech.co</span>
+<span class="text-[10px] text-slate-600 font-mono">ID: m5r-3x2t</span>
+</div>
+</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-500/10 text-red-500 text-[10px] font-bold uppercase tracking-tighter border border-red-500/20">
+<span class="h-1.5 w-1.5 rounded-full bg-red-500"></span>
+                                            Terminated
+                                        </span>
+</td>
+<td class="p-4 text-sm text-slate-500">kasm-vnc-t05</td>
+<td class="p-4 text-sm text-slate-500">node-west-01</td>
+<td class="p-4">
+<span class="text-xs bg-white/5 border border-white/10 px-2 py-0.5 rounded text-slate-600 italic">kali-linux</span>
+</td>
+<td class="p-4 text-sm text-slate-500">Audit-Only</td>
+<td class="p-4 text-xs text-slate-500">Oct 24, 11:05</td>
+<td class="p-4 text-sm font-mono text-slate-500">01h 04m</td>
+<td class="p-4 text-right">
+<div class="flex items-center justify-end gap-2">
+<button class="h-8 w-8 rounded-lg flex items-center justify-center text-slate-500 hover:text-white hover:bg-white/10">
+<span class="material-symbols-outlined text-lg">history</span>
+</button>
+<button class="h-8 w-8 rounded-lg flex items-center justify-center text-slate-600 opacity-20 cursor-not-allowed">
+<span class="material-symbols-outlined text-lg">cancel</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination Footer -->
+<div class="p-4 bg-white/[0.02] border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4">
+<p class="text-xs text-slate-500 font-medium">Showing <span class="text-white">1 - 25</span> of <span class="text-white">1,284</span> active sessions</p>
+<div class="flex items-center gap-1">
+<button class="h-8 w-8 rounded flex items-center justify-center text-slate-400 hover:bg-white/5">
+<span class="material-symbols-outlined text-base">chevron_left</span>
+</button>
+<button class="h-8 w-8 rounded flex items-center justify-center bg-primary text-white text-xs font-bold">1</button>
+<button class="h-8 w-8 rounded flex items-center justify-center text-slate-400 hover:bg-white/5 text-xs font-bold">2</button>
+<button class="h-8 w-8 rounded flex items-center justify-center text-slate-400 hover:bg-white/5 text-xs font-bold">3</button>
+<span class="text-slate-600 px-1">...</span>
+<button class="h-8 w-8 rounded flex items-center justify-center text-slate-400 hover:bg-white/5 text-xs font-bold">52</button>
+<button class="h-8 w-8 rounded flex items-center justify-center text-slate-400 hover:bg-white/5">
+<span class="material-symbols-outlined text-base">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

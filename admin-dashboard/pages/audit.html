@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>KasmVNC Plus Audit Logs</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;family=JetBrains+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#3713ec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#0a0910",
+                        "card-dark": "#13111c",
+                        "border-dark": "#2b2839",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope"],
+                        "mono": ["JetBrains Mono"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-effect {
+            background: rgba(19, 17, 28, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #2b2839;
+            border-radius: 10px;
+        }
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #10b981;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 8px #10b981;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen flex overflow-hidden">
+<!-- Sidebar Component -->
+<aside class="w-64 border-r border-slate-200 dark:border-border-dark flex flex-col h-screen bg-white dark:bg-card-dark shrink-0">
+<div class="p-6 flex items-center gap-3">
+<div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-lg">terminal</span>
+</div>
+<div class="flex flex-col">
+<h1 class="text-sm font-bold tracking-tight">KasmVNC Plus</h1>
+<p class="text-[10px] text-slate-500 dark:text-[#a19db9] font-medium uppercase tracking-wider">Enterprise Admin</p>
+</div>
+</div>
+<nav class="flex-1 px-4 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-slate-600 dark:text-[#a19db9] hover:bg-slate-100 dark:hover:bg-white/5 transition-colors" href="/admin">
+<span class="material-symbols-outlined">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-slate-600 dark:text-[#a19db9] hover:bg-slate-100 dark:hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined">desktop_windows</span>
+                Sessions
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-slate-600 dark:text-[#a19db9] hover:bg-slate-100 dark:hover:bg-white/5 transition-colors" href="/admin/users">
+<span class="material-symbols-outlined">group</span>
+                Users
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-sm font-bold rounded-lg bg-primary/10 text-primary dark:bg-primary/20 dark:text-white ring-1 ring-primary/20" href="#">
+<span class="material-symbols-outlined">analytics</span>
+                Audit Logs
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-slate-600 dark:text-[#a19db9] hover:bg-slate-100 dark:hover:bg-white/5 transition-colors" href="/admin/settings">
+<span class="material-symbols-outlined">settings</span>
+                Settings
+            </a>
+</nav>
+<div class="p-4 mt-auto border-t border-slate-200 dark:border-border-dark">
+<div class="flex items-center gap-3 p-2 rounded-lg bg-slate-100 dark:bg-white/5">
+<div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden">
+<img alt="User avatar" class="w-full h-full object-cover" data-alt="Admin user avatar illustration" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCexZdj7VCht4Sq75Pq6m6ty-ccQuuzlErszqcgOwsKK2CYtnpl4hvb2dFeQA4gjH1AJAEscCSt1emypR0a2uRxnaEs56V5E4Dk4A2DqI5-N2maZppaSEuUz6GSama9wof4oXYW6F73CkARisTvCNWC5OR6GMzgEkBnqcJVa1F4Syqp4xSAB3OKjaf8kW-h3ZiaJA3n5t9OR65IX1sQNU_a5EkxCpLYauWRLr2d_yevIhkcvj_oAl-1YLfinw7IJIQmcnopHuo0hsxD"/>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-xs font-bold truncate">Admin User</p>
+<p class="text-[10px] text-slate-500 truncate">admin@kasmvnc.com</p>
+</div>
+<span class="material-symbols-outlined text-slate-400 text-sm">logout</span>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col h-screen overflow-hidden">
+<!-- Header -->
+<header class="h-20 flex items-center justify-between px-8 border-b border-slate-200 dark:border-border-dark shrink-0">
+<div>
+<h2 class="text-2xl font-black tracking-tight dark:text-white">Audit Logs</h2>
+<p class="text-xs text-slate-500 dark:text-[#a19db9]">Real-time enterprise event monitoring and forensic logs</p>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+<span class="live-dot"></span>
+<span class="text-[11px] font-bold text-emerald-500 tracking-wider">LIVE STATUS: ACTIVE</span>
+</div>
+<button class="flex items-center gap-2 bg-slate-200 dark:bg-border-dark hover:opacity-80 transition-opacity text-slate-700 dark:text-white px-4 py-2 rounded-lg text-sm font-bold">
+<span class="material-symbols-outlined text-lg">download</span>
+                    Export CSV
+                </button>
+</div>
+</header>
+<!-- Filters Bar -->
+<div class="p-6 bg-slate-50 dark:bg-[#0d0c15] border-b border-slate-200 dark:border-border-dark flex flex-wrap gap-4 items-center shrink-0">
+<!-- Search Email -->
+<div class="relative flex-1 min-w-[240px]">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
+<input class="w-full bg-white dark:bg-border-dark border-slate-200 dark:border-transparent rounded-lg pl-10 pr-4 py-2 text-sm focus:ring-primary focus:border-primary placeholder-slate-400 dark:placeholder-[#a19db9] text-white" placeholder="Filter by Actor Email..." type="text"/>
+</div>
+<!-- Event Type Dropdown -->
+<div class="relative group">
+<button class="flex items-center gap-2 bg-white dark:bg-border-dark border border-slate-200 dark:border-transparent px-4 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-white min-w-[180px] justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-lg text-slate-400">filter_list</span>
+                        Event Type
+                    </div>
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+</div>
+<!-- Date Picker -->
+<button class="flex items-center gap-2 bg-white dark:bg-border-dark border border-slate-200 dark:border-transparent px-4 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-white min-w-[180px]">
+<span class="material-symbols-outlined text-lg text-slate-400">calendar_today</span>
+                Last 24 Hours
+                <span class="material-symbols-outlined text-sm ml-auto">expand_more</span>
+</button>
+<!-- Quick Filter Chips -->
+<div class="flex gap-2">
+<button class="px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-500 text-xs font-bold border border-emerald-500/20 flex items-center gap-1.5 hover:bg-emerald-500/20 transition-colors">
+<span class="material-symbols-outlined text-xs">check_circle</span> success
+                </button>
+<button class="px-3 py-1.5 rounded-lg bg-rose-500/10 text-rose-500 text-xs font-bold border border-rose-500/20 flex items-center gap-1.5 hover:bg-rose-500/20 transition-colors">
+<span class="material-symbols-outlined text-xs">error</span> failed
+                </button>
+</div>
+</div>
+<!-- Table Container -->
+<div class="flex-1 overflow-auto custom-scrollbar dark:bg-[#0a0910]">
+<table class="w-full text-left border-collapse table-fixed">
+<thead class="sticky top-0 z-10 bg-slate-50 dark:bg-card-dark shadow-sm">
+<tr>
+<th class="w-[180px] px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-[#a19db9] border-b border-slate-200 dark:border-border-dark">Timestamp</th>
+<th class="w-[160px] px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-[#a19db9] border-b border-slate-200 dark:border-border-dark">Event Type</th>
+<th class="w-[220px] px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-[#a19db9] border-b border-slate-200 dark:border-border-dark">Actor Email</th>
+<th class="w-[120px] px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-[#a19db9] border-b border-slate-200 dark:border-border-dark">IP Address</th>
+<th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-[#a19db9] border-b border-slate-200 dark:border-border-dark">Details</th>
+<th class="w-[100px] px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-[#a19db9] border-b border-slate-200 dark:border-border-dark text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 dark:divide-border-dark/50">
+<!-- Row 1 -->
+<tr class="hover:bg-slate-50 dark:hover:bg-primary/5 transition-colors group">
+<td class="px-6 py-3 text-xs font-mono text-slate-400">2023-11-24 14:02:11</td>
+<td class="px-6 py-3">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-500 ring-1 ring-inset ring-emerald-500/20">session.created</span>
+</td>
+<td class="px-6 py-3 text-sm font-medium">john.doe@enterprise.com</td>
+<td class="px-6 py-3 text-xs font-mono text-slate-400">192.168.1.104</td>
+<td class="px-6 py-3 text-xs truncate text-slate-400 font-mono italic">{"session_id": "vnc_4k2... }</td>
+<td class="px-6 py-3 text-right">
+<button class="text-primary hover:underline text-[10px] font-bold flex items-center justify-end gap-1 ml-auto">
+<span class="material-symbols-outlined text-sm">code</span> VIEW JSON
+                            </button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="bg-slate-50/50 dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-primary/5 transition-colors group">
+<td class="px-6 py-3 text-xs font-mono text-slate-400">2023-11-24 14:01:55</td>
+<td class="px-6 py-3">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-500 ring-1 ring-inset ring-emerald-500/20">login.success</span>
+</td>
+<td class="px-6 py-3 text-sm font-medium">admin@enterprise.com</td>
+<td class="px-6 py-3 text-xs font-mono text-slate-400">45.23.112.8</td>
+<td class="px-6 py-3 text-xs truncate text-slate-400 font-mono italic">{"method": "saml", "auth": "ok"}</td>
+<td class="px-6 py-3 text-right">
+<button class="text-primary hover:underline text-[10px] font-bold flex items-center justify-end gap-1 ml-auto">
+<span class="material-symbols-outlined text-sm">code</span> VIEW JSON
+                            </button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-slate-50 dark:hover:bg-primary/5 transition-colors group">
+<td class="px-6 py-3 text-xs font-mono text-slate-400">2023-11-24 13:58:20</td>
+<td class="px-6 py-3">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/10 text-rose-500 ring-1 ring-inset ring-rose-500/20">login.failed</span>
+</td>
+<td class="px-6 py-3 text-sm font-medium">unauthorized@hacker.io</td>
+<td class="px-6 py-3 text-xs font-mono text-slate-400">103.44.12.2</td>
+<td class="px-6 py-3 text-xs truncate text-slate-400 font-mono italic">{"error": "invalid_credentials"}</td>
+<td class="px-6 py-3 text-right">
+<button class="text-primary hover:underline text-[10px] font-bold flex items-center justify-end gap-1 ml-auto">
+<span class="material-symbols-outlined text-sm">code</span> VIEW JSON
+                            </button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="bg-slate-50/50 dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-primary/5 transition-colors group">
+<td class="px-6 py-3 text-xs font-mono text-slate-400">2023-11-24 13:55:04</td>
+<td class="px-6 py-3">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-primary/10 text-primary ring-1 ring-inset ring-primary/20">policy.change</span>
+</td>
+<td class="px-6 py-3 text-sm font-medium">sec-admin@enterprise.com</td>
+<td class="px-6 py-3 text-xs font-mono text-slate-400">192.168.1.5</td>
+<td class="px-6 py-3 text-xs truncate text-slate-400 font-mono italic">{"policy_id": "p_920", "action": "update"}</td>
+<td class="px-6 py-3 text-right">
+<button class="text-primary hover:underline text-[10px] font-bold flex items-center justify-end gap-1 ml-auto">
+<span class="material-symbols-outlined text-sm">code</span> VIEW JSON
+                            </button>
+</td>
+</tr>
+<!-- Row 5 -->
+<tr class="hover:bg-slate-50 dark:hover:bg-primary/5 transition-colors group">
+<td class="px-6 py-3 text-xs font-mono text-slate-400">2023-11-24 13:50:41</td>
+<td class="px-6 py-3">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-500/10 text-slate-500 ring-1 ring-inset ring-slate-500/20">session.terminated</span>
+</td>
+<td class="px-6 py-3 text-sm font-medium">john.doe@enterprise.com</td>
+<td class="px-6 py-3 text-xs font-mono text-slate-400">192.168.1.104</td>
+<td class="px-6 py-3 text-xs truncate text-slate-400 font-mono italic">{"duration": 1842, "status": "clean"}</td>
+<td class="px-6 py-3 text-right">
+<button class="text-primary hover:underline text-[10px] font-bold flex items-center justify-end gap-1 ml-auto">
+<span class="material-symbols-outlined text-sm">code</span> VIEW JSON
+                            </button>
+</td>
+</tr>
+<!-- Repeated Rows to Fill -->
+<tr class="bg-slate-50/50 dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-primary/5 transition-colors group">
+<td class="px-6 py-3 text-xs font-mono text-slate-400">2023-11-24 13:48:11</td>
+<td class="px-6 py-3">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-500 ring-1 ring-inset ring-emerald-500/20">session.created</span>
+</td>
+<td class="px-6 py-3 text-sm font-medium">jane.smith@enterprise.com</td>
+<td class="px-6 py-3 text-xs font-mono text-slate-400">10.0.4.52</td>
+<td class="px-6 py-3 text-xs truncate text-slate-400 font-mono italic">{"image": "ubuntu-focal", "gpu": false}</td>
+<td class="px-6 py-3 text-right">
+<button class="text-primary hover:underline text-[10px] font-bold flex items-center justify-end gap-1 ml-auto">
+<span class="material-symbols-outlined text-sm">code</span> VIEW JSON
+                            </button>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-primary/5 transition-colors group">
+<td class="px-6 py-3 text-xs font-mono text-slate-400">2023-11-24 13:45:00</td>
+<td class="px-6 py-3">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-500 ring-1 ring-inset ring-emerald-500/20">login.success</span>
+</td>
+<td class="px-6 py-3 text-sm font-medium">jane.smith@enterprise.com</td>
+<td class="px-6 py-3 text-xs font-mono text-slate-400">10.0.4.52</td>
+<td class="px-6 py-3 text-xs truncate text-slate-400 font-mono italic">{"mfa": "totp_verified"}</td>
+<td class="px-6 py-3 text-right">
+<button class="text-primary hover:underline text-[10px] font-bold flex items-center justify-end gap-1 ml-auto">
+<span class="material-symbols-outlined text-sm">code</span> VIEW JSON
+                            </button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination Footer -->
+<footer class="h-14 bg-white dark:bg-card-dark border-t border-slate-200 dark:border-border-dark flex items-center justify-between px-8 shrink-0">
+<div class="flex items-center gap-4">
+<p class="text-[11px] font-bold text-slate-500 dark:text-[#a19db9] tracking-wider uppercase">Showing 1 to 50 of 2,401 entries</p>
+<div class="h-4 w-px bg-slate-200 dark:bg-border-dark"></div>
+<div class="flex items-center gap-2">
+<span class="text-[11px] font-bold text-slate-500 dark:text-[#a19db9] tracking-wider uppercase">Rows per page:</span>
+<select class="bg-transparent border-none text-xs font-bold focus:ring-0 p-0 pr-6 text-primary cursor-pointer">
+<option>50</option>
+<option>100</option>
+<option>250</option>
+</select>
+</div>
+</div>
+<div class="flex items-center gap-1">
+<button class="p-1 rounded hover:bg-slate-100 dark:hover:bg-white/5 text-slate-400 disabled:opacity-30" disabled="">
+<span class="material-symbols-outlined">first_page</span>
+</button>
+<button class="p-1 rounded hover:bg-slate-100 dark:hover:bg-white/5 text-slate-400 disabled:opacity-30" disabled="">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<div class="flex gap-1 px-2">
+<button class="w-7 h-7 flex items-center justify-center rounded-lg bg-primary text-white text-xs font-bold">1</button>
+<button class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 text-xs font-bold text-slate-500 dark:text-[#a19db9]">2</button>
+<button class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 text-xs font-bold text-slate-500 dark:text-[#a19db9]">3</button>
+<span class="w-7 h-7 flex items-center justify-center text-slate-500">...</span>
+<button class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 text-xs font-bold text-slate-500 dark:text-[#a19db9]">48</button>
+</div>
+<button class="p-1 rounded hover:bg-slate-100 dark:hover:bg-white/5 text-slate-400">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+<button class="p-1 rounded hover:bg-slate-100 dark:hover:bg-white/5 text-slate-400">
+<span class="material-symbols-outlined">last_page</span>
+</button>
+</div>
+</footer>
+</main>
+</body></html>

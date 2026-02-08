@@ -1,0 +1,19 @@
+# KasmVNC Plus OAuth Configuration
+[provider]
+issuer_url = "http://localhost:8089/realms/test"
+internal_issuer_url = "http://host.lima.internal:8089/realms/test"
+
+[client]
+client_id = "kasmvnc"
+client_secret = "ZUbKnqIGpFkIvn7WN1rDREag8Y7pV34x"
+redirect_uri = "http://localhost:8443/auth/callback"
+scopes = ["openid", "profile", "email"]
+
+[server]
+port = 8443
+bind_address = "0.0.0.0"
+vnc_upstream = "https://127.0.0.1:8444"
+
+[recorder]
+output_dir = "/recordings"
+script_path = "/opt/kasmweb/bin/record-session.sh"

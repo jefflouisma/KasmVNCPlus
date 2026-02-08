@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>KasmVNC Plus Admin Overview</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts: Manrope -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#1337ec",
+              "primary-dark": "#0b25a8",
+              "accent": "#6366f1",
+              "background-light": "#f6f6f8",
+              "background-dark": "#0f111a", // Deep charcoal
+              "surface-dark": "#18181b", // Slightly lighter for cards
+              "surface-darker": "#131316", // Darker for sidebar
+              "border-dark": "#27272a",
+            },
+            fontFamily: {
+              "display": ["Manrope", "sans-serif"],
+              "body": ["Manrope", "sans-serif"]
+            },
+            borderRadius: {
+              "DEFAULT": "0.5rem",
+              "lg": "0.75rem",
+              "xl": "1rem",
+              "2xl": "1.5rem",
+              "full": "9999px"
+            },
+            backgroundImage: {
+                'glass-gradient': 'linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%)',
+                'premium-gradient': 'linear-gradient(to bottom right, #0f111a, #131524, #1e1b2e)',
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            font-family: 'Manrope', sans-serif;
+        }
+        
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #18181b; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #27272a; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3f3f46; 
+        }
+
+        .glass-panel {
+            background: rgba(24, 24, 27, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(19, 55, 236, 0.2) 0%, rgba(19, 55, 236, 0.05) 100%);
+            border-left: 3px solid #1337ec;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 h-screen overflow-hidden flex font-display antialiased selection:bg-primary selection:text-white">
+<!-- Sidebar -->
+<aside class="w-64 h-full bg-[#111218] border-r border-border-dark flex flex-col shrink-0 transition-all duration-300 z-20">
+<!-- Logo Area -->
+<div class="h-16 flex items-center px-6 border-b border-border-dark">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-white font-bold shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-lg">terminal</span>
+</div>
+<h1 class="text-white text-lg font-bold tracking-tight">KasmVNC<span class="text-primary font-normal">Plus</span></h1>
+</div>
+</div>
+<!-- User Profile (Compact in sidebar) -->
+<div class="p-4 border-b border-border-dark/50">
+<div class="flex items-center gap-3 p-2 rounded-xl bg-white/5 border border-white/5">
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-10 shrink-0" data-alt="Portrait of a male admin user" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBgocCMVikcFawBunur0sxg51-bONMkx7FW6m3lo1hYqBFyQIANmNnWS-hDa3A6dA90kB60Mh5hUTlpXy4d9IcW1WsIz30RYu7kGuD1aE0mEcUW5leZ8Vq2Ot7IhG_xjEDRqq2pc_5iXgg3VlKiYvFoCpxEW2NP5oBwRSXz-TWXbPTn7HqcaI9T4Acfx5bZ-y4EnevLXdQqEiETVtV3-S6caa67T28nhNHtLC3YBDvPYEEyQGC86GobRYPEXK3wKWV2kZk62H6Aam5G");'></div>
+<div class="flex flex-col overflow-hidden">
+<h2 class="text-white text-sm font-semibold truncate">Admin User</h2>
+<p class="text-slate-400 text-xs truncate">Enterprise Admin</p>
+</div>
+</div>
+</div>
+<!-- Navigation -->
+<nav class="flex-1 overflow-y-auto py-4 px-3 flex flex-col gap-1">
+<a class="nav-item active flex items-center gap-3 px-3 py-2.5 rounded-lg text-white group transition-colors" href="/admin">
+<span class="material-symbols-outlined text-primary group-hover:text-white transition-colors">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors" href="/admin/sessions">
+<span class="material-symbols-outlined">monitor_heart</span>
+<span class="text-sm font-medium">Sessions</span>
+</a>
+<a class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors" href="/admin/users">
+<span class="material-symbols-outlined">group</span>
+<span class="text-sm font-medium">Users</span>
+</a>
+<a class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors" href="/admin/policies">
+<span class="material-symbols-outlined">verified_user</span>
+<span class="text-sm font-medium">Policies</span>
+</a>
+<a class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors" href="/admin/recordings">
+<span class="material-symbols-outlined">videocam</span>
+<span class="text-sm font-medium">Recordings</span>
+</a>
+<a class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors" href="/admin/audit">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="text-sm font-medium">Audit Log</span>
+</a>
+<a class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors" href="/admin/images">
+<span class="material-symbols-outlined">image</span>
+<span class="text-sm font-medium">Images</span>
+</a>
+<div class="my-2 border-t border-border-dark/50 mx-2"></div>
+<a class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors" href="/admin/settings">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</a>
+</nav>
+<!-- Bottom Info -->
+<div class="p-4 text-xs text-slate-500 text-center">
+            v2.4.1 (Stable)
+        </div>
+</aside>
+<!-- Main Content Wrapper -->
+<main class="flex-1 flex flex-col h-full overflow-hidden relative bg-premium-gradient">
+<!-- Abstract Background Decoration -->
+<div class="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[100px] pointer-events-none"></div>
+<div class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-purple-600/5 rounded-full blur-[80px] pointer-events-none"></div>
+<!-- Header -->
+<header class="h-16 flex items-center justify-between px-8 border-b border-white/5 bg-[#111218]/50 backdrop-blur-md shrink-0 z-10">
+<h2 class="text-xl font-bold text-white tracking-tight">Dashboard Overview</h2>
+<div class="flex items-center gap-6">
+<!-- Search -->
+<div class="relative w-80">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 material-symbols-outlined text-[20px]">search</span>
+<input class="w-full h-10 bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all" placeholder="Search sessions, users, or logs..." type="text"/>
+</div>
+<!-- Actions -->
+<div class="flex items-center gap-2">
+<button class="size-10 flex items-center justify-center rounded-xl hover:bg-white/10 text-slate-300 transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2.5 right-2.5 size-2 bg-red-500 rounded-full border-2 border-[#111218]"></span>
+</button>
+<button class="size-10 flex items-center justify-center rounded-xl hover:bg-white/10 text-slate-300 transition-colors">
+<span class="material-symbols-outlined">help</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Content Scroll Area -->
+<div class="flex-1 overflow-y-auto p-8 relative z-0 scroll-smooth">
+<!-- KPI Stats Row -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+<!-- Active Sessions -->
+<div class="glass-panel p-6 rounded-2xl relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl text-primary">monitor_heart</span>
+</div>
+<div class="flex items-center gap-2 mb-2">
+<span class="size-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)] animate-pulse"></span>
+<h3 class="text-slate-400 text-sm font-medium">Active Sessions</h3>
+</div>
+<div class="flex items-end gap-3">
+<span class="text-3xl font-bold text-white">42</span>
+<span class="text-green-400 text-xs font-medium mb-1.5 flex items-center">
+<span class="material-symbols-outlined text-base">trending_up</span>
+                            +12%
+                        </span>
+</div>
+<div class="mt-4 h-1 w-full bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[45%] rounded-full"></div>
+</div>
+</div>
+<!-- Total Users -->
+<div class="glass-panel p-6 rounded-2xl relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl text-purple-500">group</span>
+</div>
+<div class="flex items-center gap-2 mb-2">
+<h3 class="text-slate-400 text-sm font-medium">Total Users</h3>
+</div>
+<div class="flex items-end gap-3">
+<span class="text-3xl font-bold text-white">1,205</span>
+<span class="text-green-400 text-xs font-medium mb-1.5 flex items-center">
+<span class="material-symbols-outlined text-base">trending_up</span>
+                            +5%
+                        </span>
+</div>
+<div class="mt-4 h-1 w-full bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-purple-500 w-[70%] rounded-full"></div>
+</div>
+</div>
+<!-- Recordings Today -->
+<div class="glass-panel p-6 rounded-2xl relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl text-orange-500">videocam</span>
+</div>
+<div class="flex items-center gap-2 mb-2">
+<h3 class="text-slate-400 text-sm font-medium">Recordings Today</h3>
+</div>
+<div class="flex items-end gap-3">
+<span class="text-3xl font-bold text-white">18</span>
+<span class="text-slate-500 text-xs font-medium mb-1.5">Avg duration 45m</span>
+</div>
+<div class="mt-4 h-1 w-full bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-orange-500 w-[30%] rounded-full"></div>
+</div>
+</div>
+<!-- Audit Events -->
+<div class="glass-panel p-6 rounded-2xl relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl text-cyan-500">verified_user</span>
+</div>
+<div class="flex items-center gap-2 mb-2">
+<h3 class="text-slate-400 text-sm font-medium">Audit Events (24h)</h3>
+</div>
+<div class="flex items-end gap-3">
+<span class="text-3xl font-bold text-white">156</span>
+<span class="text-green-400 text-xs font-medium mb-1.5 flex items-center">
+<span class="material-symbols-outlined text-base">trending_up</span>
+                            +2%
+                        </span>
+</div>
+<div class="mt-4 h-1 w-full bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-cyan-500 w-[60%] rounded-full"></div>
+</div>
+</div>
+</div>
+<!-- Main Dashboard Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+<!-- Recent Sessions Table (Takes up 2 columns) -->
+<div class="glass-panel rounded-2xl col-span-1 lg:col-span-2 flex flex-col">
+<div class="p-6 border-b border-white/5 flex items-center justify-between">
+<h3 class="text-white font-bold text-lg">Recent Sessions</h3>
+<button class="text-xs text-primary hover:text-primary-300 font-medium transition-colors">View All</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left text-sm text-slate-400">
+<thead class="bg-white/5 text-slate-200 text-xs uppercase font-semibold">
+<tr>
+<th class="px-6 py-4">User Email</th>
+<th class="px-6 py-4">Status</th>
+<th class="px-6 py-4">Pod Name</th>
+<th class="px-6 py-4">Started Time</th>
+<th class="px-6 py-4 text-right">Duration</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-white/5">
+<tr class="hover:bg-white/5 transition-colors group">
+<td class="px-6 py-4 font-medium text-white group-hover:text-primary transition-colors">alice.chen@corp.com</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-500/10 text-green-400 border border-green-500/20">
+<span class="size-1.5 rounded-full bg-green-400"></span>
+                                            Active
+                                        </span>
+</td>
+<td class="px-6 py-4">kasm-pod-alpha-01</td>
+<td class="px-6 py-4">Oct 24, 10:23 AM</td>
+<td class="px-6 py-4 text-right font-mono text-xs">02:14:32</td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors group">
+<td class="px-6 py-4 font-medium text-white group-hover:text-primary transition-colors">bob.smith@corp.com</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-500/10 text-green-400 border border-green-500/20">
+<span class="size-1.5 rounded-full bg-green-400"></span>
+                                            Active
+                                        </span>
+</td>
+<td class="px-6 py-4">kasm-pod-beta-09</td>
+<td class="px-6 py-4">Oct 24, 11:45 AM</td>
+<td class="px-6 py-4 text-right font-mono text-xs">00:52:10</td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors group">
+<td class="px-6 py-4 font-medium text-white group-hover:text-primary transition-colors">sarah.lee@design.io</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">
+<span class="size-1.5 rounded-full bg-yellow-400"></span>
+                                            Idle
+                                        </span>
+</td>
+<td class="px-6 py-4">kasm-pod-gamma-22</td>
+<td class="px-6 py-4">Oct 24, 09:00 AM</td>
+<td class="px-6 py-4 text-right font-mono text-xs">03:37:45</td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors group">
+<td class="px-6 py-4 font-medium text-white group-hover:text-primary transition-colors">mike.ross@legal.com</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-slate-500/10 text-slate-400 border border-slate-500/20">
+<span class="size-1.5 rounded-full bg-slate-400"></span>
+                                            Closed
+                                        </span>
+</td>
+<td class="px-6 py-4">kasm-pod-alpha-04</td>
+<td class="px-6 py-4">Oct 24, 08:30 AM</td>
+<td class="px-6 py-4 text-right font-mono text-xs">04:00:00</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- System Health Panel -->
+<div class="glass-panel rounded-2xl p-6 flex flex-col gap-6">
+<div class="flex items-center justify-between">
+<h3 class="text-white font-bold text-lg">System Health</h3>
+<span class="inline-flex items-center px-2 py-1 bg-green-500/10 text-green-400 text-xs rounded border border-green-500/20">Healthy</span>
+</div>
+<div class="flex items-center justify-around py-2">
+<!-- CPU Ring Chart -->
+<div class="flex flex-col items-center gap-2 group cursor-pointer">
+<div class="relative size-28">
+<svg class="size-full rotate-[-90deg]" viewbox="0 0 36 36">
+<!-- Background Circle -->
+<path class="text-white/5" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3"></path>
+<!-- Value Circle (45%) -->
+<path class="text-primary drop-shadow-[0_0_8px_rgba(19,55,236,0.5)] transition-all duration-1000 ease-out" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="45, 100" stroke-linecap="round" stroke-width="3"></path>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="text-xl font-bold text-white group-hover:scale-110 transition-transform">45%</span>
+<span class="text-[10px] text-slate-400 uppercase tracking-wide">CPU</span>
+</div>
+</div>
+</div>
+<!-- Memory Ring Chart -->
+<div class="flex flex-col items-center gap-2 group cursor-pointer">
+<div class="relative size-28">
+<svg class="size-full rotate-[-90deg]" viewbox="0 0 36 36">
+<!-- Background Circle -->
+<path class="text-white/5" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3"></path>
+<!-- Value Circle (62%) -->
+<path class="text-purple-500 drop-shadow-[0_0_8px_rgba(168,85,247,0.5)] transition-all duration-1000 ease-out" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="62, 100" stroke-linecap="round" stroke-width="3"></path>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="text-xl font-bold text-white group-hover:scale-110 transition-transform">62%</span>
+<span class="text-[10px] text-slate-400 uppercase tracking-wide">MEM</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Storage Bar -->
+<div class="flex flex-col gap-2">
+<div class="flex justify-between text-xs">
+<span class="text-slate-400">Storage Usage</span>
+<span class="text-white font-medium">1.2 TB <span class="text-slate-500 font-normal">/ 5 TB</span></span>
+</div>
+<div class="h-2 w-full bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-cyan-500 to-blue-500 w-[24%] rounded-full shadow-[0_0_10px_rgba(6,182,212,0.5)]"></div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4 mt-auto">
+<div class="p-3 rounded-xl bg-white/5 border border-white/5">
+<p class="text-[10px] text-slate-400 uppercase tracking-wide mb-1">Network In</p>
+<p class="text-sm font-semibold text-white">450 MB/s</p>
+</div>
+<div class="p-3 rounded-xl bg-white/5 border border-white/5">
+<p class="text-[10px] text-slate-400 uppercase tracking-wide mb-1">Network Out</p>
+<p class="text-sm font-semibold text-white">1.2 GB/s</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Recent Audit Events (Full Width Panel) -->
+<div class="glass-panel rounded-2xl p-6">
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-white font-bold text-lg">Recent Audit Events</h3>
+<button class="size-8 flex items-center justify-center rounded-lg hover:bg-white/10 text-slate-400 transition-colors">
+<span class="material-symbols-outlined text-sm">more_horiz</span>
+</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+<!-- Event Item -->
+<div class="flex items-start gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors border border-transparent hover:border-white/5">
+<div class="mt-0.5 size-8 rounded-full bg-blue-500/10 text-blue-400 flex items-center justify-center shrink-0 border border-blue-500/20">
+<span class="material-symbols-outlined text-sm">login</span>
+</div>
+<div class="flex flex-col min-w-0">
+<p class="text-sm text-white font-medium truncate">User Login Success</p>
+<p class="text-xs text-slate-400">admin@corp.com logged in via 2FA</p>
+<span class="text-[10px] text-slate-500 mt-1">2 mins ago</span>
+</div>
+</div>
+<!-- Event Item -->
+<div class="flex items-start gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors border border-transparent hover:border-white/5">
+<div class="mt-0.5 size-8 rounded-full bg-purple-500/10 text-purple-400 flex items-center justify-center shrink-0 border border-purple-500/20">
+<span class="material-symbols-outlined text-sm">rule_settings</span>
+</div>
+<div class="flex flex-col min-w-0">
+<p class="text-sm text-white font-medium truncate">Policy Updated</p>
+<p class="text-xs text-slate-400">Policy 'Standard' updated by Admin</p>
+<span class="text-[10px] text-slate-500 mt-1">15 mins ago</span>
+</div>
+</div>
+<!-- Event Item -->
+<div class="flex items-start gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors border border-transparent hover:border-white/5">
+<div class="mt-0.5 size-8 rounded-full bg-red-500/10 text-red-400 flex items-center justify-center shrink-0 border border-red-500/20">
+<span class="material-symbols-outlined text-sm">block</span>
+</div>
+<div class="flex flex-col min-w-0">
+<p class="text-sm text-white font-medium truncate">Access Denied</p>
+<p class="text-xs text-slate-400">Failed login attempt from 192.168.1.4</p>
+<span class="text-[10px] text-slate-500 mt-1">1 hour ago</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

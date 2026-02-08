@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>KasmVNC Plus User Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1313ec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101022",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-sidebar {
+            background: rgba(16, 16, 34, 0.8);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .primary-gradient {
+            background: linear-gradient(135deg, #1313ec 0%, #7c3aed 100%);
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen overflow-hidden">
+<div class="flex h-screen w-full overflow-hidden">
+<!-- Sidebar -->
+<aside class="w-64 glass-sidebar flex flex-col shrink-0 z-20">
+<div class="p-6 flex items-center gap-3">
+<div class="w-10 h-10 primary-gradient rounded-lg flex items-center justify-center shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-white">dns</span>
+</div>
+<div>
+<h1 class="text-white text-base font-bold leading-tight">KasmVNC Plus</h1>
+<p class="text-slate-400 text-[10px] uppercase tracking-widest font-bold">Enterprise Browser</p>
+</div>
+</div>
+<nav class="flex-1 px-4 py-4 space-y-2 overflow-y-auto">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-all group" href="/admin">
+<span class="material-symbols-outlined text-[22px]">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 bg-primary/20 text-white rounded-lg border border-primary/30 shadow-inner shadow-primary/10" href="/admin/users">
+<span class="material-symbols-outlined text-[22px] text-primary">group</span>
+<span class="text-sm font-semibold">Users</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-all" href="/admin/sessions">
+<span class="material-symbols-outlined text-[22px]">hub</span>
+<span class="text-sm font-medium">Groups</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined text-[22px]">policy</span>
+<span class="text-sm font-medium">Policies</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined text-[22px]">monitoring</span>
+<span class="text-sm font-medium">Logs</span>
+</a>
+</nav>
+<div class="p-4 border-t border-white/5">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-all" href="/admin/settings">
+<span class="material-symbols-outlined text-[22px]">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</a>
+<div class="mt-4 px-4 py-3 flex items-center gap-3 glass-panel rounded-xl">
+<div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center border border-white/10">
+<span class="material-symbols-outlined text-sm">person</span>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-xs font-bold truncate">Admin Console</p>
+<p class="text-[10px] text-slate-500 truncate">v4.2.0-Enterprise</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col relative overflow-hidden">
+<!-- Header/Tabs Area -->
+<header class="h-20 flex items-center justify-between px-8 border-b border-white/5 bg-background-dark/30">
+<div class="flex items-center gap-8">
+<div class="flex bg-white/5 p-1 rounded-lg">
+<button class="px-6 py-2 bg-white/10 text-white rounded-md text-sm font-bold shadow-sm">Users</button>
+<button class="px-6 py-2 text-slate-400 hover:text-white text-sm font-medium transition-colors">Groups</button>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-lg">search</span>
+<input class="w-full bg-white/5 border-white/10 focus:border-primary/50 focus:ring-0 rounded-lg pl-10 pr-4 py-2 text-sm text-white placeholder-slate-500 transition-all" placeholder="Filter users..." type="text"/>
+</div>
+<button class="primary-gradient text-white px-5 py-2 rounded-lg text-sm font-bold flex items-center gap-2 hover:opacity-90 shadow-lg shadow-primary/20 transition-all">
+<span class="material-symbols-outlined text-lg">sync_alt</span>
+                        Sync from SSO
+                    </button>
+<div class="h-8 w-px bg-white/10"></div>
+<button class="w-10 h-10 flex items-center justify-center glass-panel rounded-lg hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-slate-400">notifications</span>
+</button>
+</div>
+</header>
+<!-- Table Container -->
+<section class="flex-1 overflow-auto p-8">
+<div class="glass-panel rounded-xl overflow-hidden border border-white/5">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-white/5 border-b border-white/10">
+<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400">User Email</th>
+<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400">Name</th>
+<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400">Last Login</th>
+<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400">Sessions</th>
+<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400 text-center">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-white/5">
+<tr class="hover:bg-white/5 transition-colors cursor-pointer group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-emerald-500 text-lg">person</span>
+</div>
+<span class="text-sm font-medium text-slate-200">j.doe@enterprise.com</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-400">John Doe</td>
+<td class="px-6 py-4 text-sm text-slate-400">2h ago</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="text-emerald-400 text-sm font-bold">1</span>
+<span class="text-slate-600">/</span>
+<span class="text-slate-400 text-sm">24</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex justify-center">
+<span class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-[11px] font-bold uppercase tracking-wider border border-emerald-500/20">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                            Active
+                                        </span>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-white/5 bg-primary/5 transition-colors cursor-pointer border-l-2 border-l-primary">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-lg">person</span>
+</div>
+<span class="text-sm font-bold text-white">s.chen@enterprise.com</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-400 font-medium">Sarah Chen</td>
+<td class="px-6 py-4 text-sm text-slate-400">10m ago</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="text-emerald-400 text-sm font-bold">2</span>
+<span class="text-slate-600">/</span>
+<span class="text-slate-400 text-sm">89</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex justify-center">
+<span class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-[11px] font-bold uppercase tracking-wider border border-emerald-500/20">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                            Active
+                                        </span>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors cursor-pointer">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-amber-500 text-lg">person</span>
+</div>
+<span class="text-sm font-medium text-slate-200">m.vance@enterprise.com</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-400">Marcus Vance</td>
+<td class="px-6 py-4 text-sm text-slate-400">1d ago</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="text-slate-500 text-sm font-bold">0</span>
+<span class="text-slate-600">/</span>
+<span class="text-slate-400 text-sm">45</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex justify-center">
+<span class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-500 text-[11px] font-bold uppercase tracking-wider border border-amber-500/20">
+                                            Locked
+                                        </span>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors cursor-pointer">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-slate-500/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-slate-500 text-lg">person</span>
+</div>
+<span class="text-sm font-medium text-slate-200">a.smith@enterprise.com</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-400">Alice Smith</td>
+<td class="px-6 py-4 text-sm text-slate-400">5h ago</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="text-slate-500 text-sm font-bold">0</span>
+<span class="text-slate-600">/</span>
+<span class="text-slate-400 text-sm">12</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex justify-center">
+<span class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-500/10 text-slate-500 text-[11px] font-bold uppercase tracking-wider border border-slate-500/20">
+                                            Inactive
+                                        </span>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- Slide-in User Details Panel -->
+<aside class="absolute right-0 top-0 bottom-0 w-96 glass-sidebar z-30 shadow-2xl flex flex-col border-l border-white/10">
+<div class="p-6 flex items-center justify-between border-b border-white/5">
+<h2 class="text-lg font-bold text-white">User Details</h2>
+<button class="w-8 h-8 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors text-slate-400">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto p-6 space-y-8">
+<!-- Profile Header -->
+<div class="flex flex-col items-center text-center">
+<div class="relative">
+<div class="w-24 h-24 rounded-2xl primary-gradient p-1 shadow-xl shadow-primary/20">
+<img alt="Sarah Chen Profile" class="w-full h-full rounded-[14px] bg-slate-800 object-cover" data-alt="Portrait of a female professional" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAlY8nelfqtWy3wdi3qnUEUpu-qOuoX13OgpaY-RJFvqjMb-PM8NDQyPQfTh_EOGrcC53hbcObDZOOqpQj8vUAzDMgpAF4Qv-vKsZMW_EWAVNSFehCvngySpNwZFmJ7VAhH3HP1s_vcFQDBQeCHWCLmXEmjYUFJ7ubdor282yTgvyFt0vKpu51Ot7bhxQ-HUXd8Khv2MAHpTjGjBz3-uhz3NrcGbyBa4oVXQ5ShpverA5I4XHqHMSyJOn5yFG2pkdzt1Jg5tasX31aj"/>
+</div>
+<div class="absolute -bottom-2 -right-2 w-8 h-8 bg-emerald-500 rounded-full border-4 border-background-dark flex items-center justify-center shadow-lg">
+<span class="material-symbols-outlined text-white text-[16px] font-bold">bolt</span>
+</div>
+</div>
+<h3 class="mt-4 text-xl font-bold text-white">Sarah Chen</h3>
+<p class="text-sm text-slate-400">s.chen@enterprise.com</p>
+<div class="mt-2 px-3 py-1 bg-white/5 rounded-md border border-white/5">
+<span class="text-[10px] uppercase font-black text-slate-500 tracking-tighter">Department:</span>
+<span class="text-[11px] font-bold text-primary ml-1">Engineering (APAC)</span>
+</div>
+</div>
+<!-- Statistics Cards -->
+<div class="grid grid-cols-2 gap-3">
+<div class="glass-panel p-4 rounded-xl text-center">
+<p class="text-[10px] uppercase text-slate-500 font-bold mb-1">Total Active</p>
+<p class="text-2xl font-black text-white">02</p>
+</div>
+<div class="glass-panel p-4 rounded-xl text-center">
+<p class="text-[10px] uppercase text-slate-500 font-bold mb-1">Compliance</p>
+<p class="text-2xl font-black text-emerald-400">100%</p>
+</div>
+</div>
+<!-- Policies Section -->
+<div>
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-primary text-lg">verified_user</span>
+<h4 class="text-xs font-black uppercase text-slate-400 tracking-widest">Active Policies</h4>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1.5 bg-primary/10 border border-primary/20 text-primary text-[11px] font-bold rounded-lg flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px]">hd</span>
+                                Ultra-Res Graphics
+                            </span>
+<span class="px-3 py-1.5 bg-primary/10 border border-primary/20 text-primary text-[11px] font-bold rounded-lg flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px]">content_paste</span>
+                                Clipboard Sync
+                            </span>
+<span class="px-3 py-1.5 bg-primary/10 border border-primary/20 text-primary text-[11px] font-bold rounded-lg flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px]">public</span>
+                                APAC Gateway
+                            </span>
+</div>
+</div>
+<!-- Session History -->
+<div>
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg">history</span>
+<h4 class="text-xs font-black uppercase text-slate-400 tracking-widest">Recent Sessions</h4>
+</div>
+<button class="text-[10px] font-bold text-primary hover:underline">View All</button>
+</div>
+<div class="space-y-3">
+<div class="p-3 bg-white/5 rounded-xl border border-white/5 flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+<span class="material-symbols-outlined">desktop_windows</span>
+</div>
+<div class="flex-1">
+<p class="text-[11px] font-bold text-white">Kasm-Win11-Pro</p>
+<p class="text-[10px] text-slate-500">102.34.11.2 • 14:22 UTC</p>
+</div>
+<div class="text-right">
+<p class="text-[10px] font-bold text-emerald-500">Connected</p>
+</div>
+</div>
+<div class="p-3 bg-white/5 rounded-xl border border-white/5 flex items-center gap-3 opacity-60">
+<div class="w-10 h-10 rounded-lg bg-slate-500/10 flex items-center justify-center text-slate-400">
+<span class="material-symbols-outlined">terminal</span>
+</div>
+<div class="flex-1">
+<p class="text-[11px] font-bold text-white">Kasm-Ubuntu-Dev</p>
+<p class="text-[10px] text-slate-500">102.34.11.2 • 09:15 UTC</p>
+</div>
+<div class="text-right">
+<p class="text-[10px] font-bold text-slate-500">Closed</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Activity Timeline -->
+<div>
+<div class="flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-primary text-lg">timeline</span>
+<h4 class="text-xs font-black uppercase text-slate-400 tracking-widest">Activity Log</h4>
+</div>
+<div class="relative space-y-6 ml-2 border-l border-white/10 pl-6">
+<div class="relative">
+<div class="absolute -left-[31px] top-1 w-2.5 h-2.5 rounded-full bg-primary ring-4 ring-background-dark shadow-glow"></div>
+<p class="text-[11px] font-bold text-white">Authentication Success</p>
+<p class="text-[10px] text-slate-500 mt-1">Logged in via Azure SSO from Tokyo, JP</p>
+<p class="text-[9px] text-slate-600 mt-1">10 minutes ago</p>
+</div>
+<div class="relative">
+<div class="absolute -left-[31px] top-1 w-2.5 h-2.5 rounded-full bg-slate-700 ring-4 ring-background-dark"></div>
+<p class="text-[11px] font-bold text-slate-300">Policy Updated</p>
+<p class="text-[10px] text-slate-500 mt-1">Administrator (admin_1) assigned 'APAC Gateway' policy</p>
+<p class="text-[9px] text-slate-600 mt-1">2 hours ago</p>
+</div>
+<div class="relative">
+<div class="absolute -left-[31px] top-1 w-2.5 h-2.5 rounded-full bg-slate-700 ring-4 ring-background-dark"></div>
+<p class="text-[11px] font-bold text-slate-300">MFA Reset Requested</p>
+<p class="text-[10px] text-slate-500 mt-1">Request denied by system (security threshold)</p>
+<p class="text-[9px] text-slate-600 mt-1">Yesterday, 18:44</p>
+</div>
+</div>
+</div>
+</div>
+<div class="p-6 border-t border-white/5 bg-white/5 grid grid-cols-2 gap-3">
+<button class="px-4 py-2 bg-slate-800 text-white rounded-lg text-xs font-bold border border-white/5 hover:bg-slate-700 transition-colors">Lock User</button>
+<button class="px-4 py-2 primary-gradient text-white rounded-lg text-xs font-bold hover:opacity-90 transition-opacity shadow-lg shadow-primary/20">Edit Profile</button>
+</div>
+</aside>
+</main>
+</div>
+<!-- Background Elements for Premium Look -->
+<div class="fixed top-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary/10 blur-[120px] rounded-full pointer-events-none z-0"></div>
+<div class="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-600/10 blur-[120px] rounded-full pointer-events-none z-0"></div>
+</body></html>

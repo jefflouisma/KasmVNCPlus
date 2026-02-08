@@ -1,0 +1,108 @@
+# KasmVNC Plus - Secure Enterprise Browser
+# Compete with Palo Alto Prisma Access: kiosk lockdown, DLP watermark, post-SSO lifecycle
+
+# =============================================================================
+# Stage 1: Build Rust binaries (OAuth server + noVNC Recorder)
+# =============================================================================
+FROM rust:1.93-bookworm AS rust-builder
+
+WORKDIR /build
+
+# Copy Rust workspace files
+COPY Cargo.toml Cargo.lock ./
+COPY oauth/ oauth/
+COPY novnc_recorder/ novnc_recorder/
+COPY session-controller/ session-controller/
+
+# Build release binaries
+RUN cargo build --release
+
+# =============================================================================
+# Stage 2: KasmVNC runtime
+# =============================================================================
+FROM kasmweb/core-ubuntu-jammy:1.15.0 AS runtime
+
+USER root
+
+# Install dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    libssl3 \
+    curl \
+    ffmpeg \
+    dbus-x11 \
+    python3 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Chromium from Debian Bookworm via apt with proper pinning
+# Google Chrome has no ARM64 Linux build; Ubuntu's chromium is snap-only
+# Bookworm glibc (2.36) is compatible with Jammy's glibc (2.35) — verified via ldd
+COPY docker/debian-chromium.list /etc/apt/sources.list.d/debian-chromium.list
+COPY docker/debian-chromium-pin /etc/apt/preferences.d/debian-chromium
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 0E98404D386FA1D9 6ED0E7B82643E131 605C66F00D6C9793 && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends chromium && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copy Rust binaries
+COPY --from=rust-builder /build/target/release/kasmvnc-oauth-server /opt/kasmweb/bin/
+COPY --from=rust-builder /build/target/release/novnc_recorder /opt/kasmweb/bin/
+COPY --from=rust-builder /build/target/release/kasmvnc-session-controller /opt/kasmweb/bin/
+
+# Make binaries executable
+RUN chmod +x /opt/kasmweb/bin/kasmvnc-oauth-server /opt/kasmweb/bin/novnc_recorder /opt/kasmweb/bin/kasmvnc-session-controller
+
+# Deploy Chromium enterprise managed policies (kiosk hardening)
+COPY docker/chromium-policies.json /etc/chromium/policies/managed/policy.json
+
+# Create directories
+RUN mkdir -p /etc/kasmvnc /recordings /profiles && chown 1000:1000 /recordings /profiles
+
+# Generate self-signed SSL cert for KasmVNC websocket
+RUN mkdir -p /home/kasm-user/.vnc && \
+    openssl req -x509 -nodes -days 3650 \
+      -newkey rsa:2048 \
+      -keyout /home/kasm-user/.vnc/self.pem \
+      -out /home/kasm-user/.vnc/self.pem \
+      -subj '/CN=localhost' && \
+    chown -R 1000:1000 /home/kasm-user/.vnc
+
+# KasmVNC config is generated dynamically by entrypoint.sh with SSO user watermark
+# No static kasmvnc.yaml needed — entrypoint creates it post-SSO
+
+# Copy recorder config
+COPY docker/novnc_recorder.toml /etc/novnc_recorder.toml
+
+# Default config locations — bake OAuth config into image for local dev
+COPY oauth.toml /etc/kasmvnc/oauth.toml
+ENV OAUTH_CONFIG=/etc/kasmvnc/oauth.toml
+ENV NOVNC_RECORDER_CONFIG=/etc/novnc_recorder.toml
+
+# Expose ports
+# 8443 = OAuth server (only exposed port — SSO + reverse proxy + websocket)
+EXPOSE 8443
+
+# ─── Filesystem Hardening ────────────────────────────────────────────────────
+# Remove terminal emulators, file managers from user-visible desktop.
+# NOTE: Do NOT remove bash — entrypoint.sh depends on /bin/bash
+# Kiosk mode + no window manager = no way to launch a terminal anyway
+RUN chmod 700 /usr/bin/apt* /usr/bin/dpkg* 2>/dev/null || true; \
+    chmod 700 /usr/bin/wget 2>/dev/null || true; \
+    rm -f /usr/share/applications/xterm*.desktop \
+          /usr/share/applications/thunar*.desktop \
+          /usr/share/applications/*terminal*.desktop \
+          /usr/share/applications/*filemanager*.desktop 2>/dev/null || true
+
+# Admin dashboard pages (served by OAuth server at /admin)
+COPY admin-dashboard/pages/ /opt/kasmvnc/admin-dashboard/pages/
+
+# Session controller migrations
+COPY session-controller/migrations/ /opt/kasmweb/migrations/
+
+# Startup script
+COPY docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+USER 1000
+
+ENTRYPOINT ["/entrypoint.sh"]

@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>KasmVNC Plus Policies Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1313ec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101022",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Manrope', sans-serif;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glass-modal {
+            background: rgba(16, 16, 34, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .gradient-btn {
+            background: linear-gradient(135deg, #1313ec 0%, #4f46e5 100%);
+        }
+        /* Custom range slider styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 18px;
+            width: 18px;
+            border-radius: 50%;
+            background: #1313ec;
+            cursor: pointer;
+            margin-top: -6px;
+            box-shadow: 0 0 10px rgba(19, 19, 236, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white min-h-screen overflow-x-hidden">
+<div class="flex h-screen">
+<!-- SideNavBar -->
+<aside class="w-64 border-r border-white/10 flex flex-col h-full bg-[#111118]">
+<div class="p-6">
+<div class="flex items-center gap-3 mb-8">
+<div class="size-10 rounded-full bg-primary flex items-center justify-center text-white">
+<span class="material-symbols-outlined">shield_person</span>
+</div>
+<div class="flex flex-col">
+<h1 class="text-white text-base font-bold leading-none">KasmVNC Plus</h1>
+<p class="text-[#9d9db9] text-xs font-normal mt-1">Enterprise Admin</p>
+</div>
+</div>
+<nav class="space-y-2">
+<a class="flex items-center gap-3 px-3 py-2 text-[#9d9db9] hover:bg-white/5 rounded-lg transition-colors" href="/admin">
+<span class="material-symbols-outlined text-[20px]">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 bg-primary/20 text-white rounded-lg border border-primary/30 transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">policy</span>
+<span class="text-sm font-medium">Policies</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-[#9d9db9] hover:bg-white/5 rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">cast_connected</span>
+<span class="text-sm font-medium">Sessions</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-[#9d9db9] hover:bg-white/5 rounded-lg transition-colors" href="/admin/users">
+<span class="material-symbols-outlined text-[20px]">group</span>
+<span class="text-sm font-medium">Users</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-[#9d9db9] hover:bg-white/5 rounded-lg transition-colors" href="/admin/settings">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</a>
+</nav>
+</div>
+<div class="mt-auto p-6 border-t border-white/10">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-slate-700" data-alt="User avatar for admin" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBdgAPGOwOkGIfBNrmHnEQmEV4PoEj4PhMVrVGER3AJ5wlQmfTUg_ojassdhZpuBsKd3hvZu8tU_0lb-ia-QP7D0kzCX9GCyinS2R_iUDxuV47qyb9E5OQOX_semkR0fU6mCoXgmxsc68rDahUAyU0qYVdQWUuoDWZ0HOs69eGsxgW9vd0VRtuKqTdWx6aPYjsXcP68ITm1EhIP98zU9YLAVICR3Kgv7iKkRkJgC-mCT4xgRZUbW7pgwx7v00Wac2Ni8Tau6U6HDnpY')"></div>
+<div class="flex-1 overflow-hidden">
+<p class="text-xs font-semibold text-white truncate">Admin User</p>
+<p class="text-[10px] text-[#9d9db9] truncate">admin@enterprise.com</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col overflow-hidden bg-background-dark">
+<!-- Header -->
+<header class="flex items-center justify-between px-8 py-4 border-b border-white/10">
+<div class="flex items-center gap-6 flex-1">
+<h2 class="text-xl font-bold text-white whitespace-nowrap">Policies Management</h2>
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#9d9db9] text-[20px]">search</span>
+<input class="w-full bg-white/5 border-white/10 rounded-xl pl-10 pr-4 py-2 text-sm text-white focus:ring-primary focus:border-primary" placeholder="Search policies..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="gradient-btn text-white px-5 py-2 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-[20px]">add</span>
+                        Create Policy
+                    </button>
+<button class="p-2 text-[#9d9db9] hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[24px]">notifications</span>
+</button>
+</div>
+</header>
+<!-- Grid Content -->
+<div class="flex-1 overflow-y-auto p-8">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- Policy Card 1 -->
+<div class="glass-card rounded-xl p-5 group hover:border-primary/50 transition-all duration-300 flex flex-col">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="text-lg font-bold text-white">Dev Team Policy</h3>
+<p class="text-xs text-[#9d9db9]">Last modified 2h ago</p>
+</div>
+<div class="flex gap-2">
+<button class="p-1.5 text-[#9d9db9] hover:text-white hover:bg-white/5 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+<button class="p-1.5 text-[#9d9db9] hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+<div class="flex flex-wrap gap-2 mb-6">
+<div class="flex items-center gap-1 px-2.5 py-1 bg-primary/10 border border-primary/20 rounded-full">
+<span class="material-symbols-outlined text-[14px] text-primary">link</span>
+<span class="text-[11px] font-semibold text-primary">12 Allowed</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 bg-emerald-400/10 border border-emerald-400/20 rounded-full">
+<span class="material-symbols-outlined text-[14px] text-emerald-400">content_paste</span>
+<span class="text-[11px] font-semibold text-emerald-400">Clipboard On</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 bg-slate-400/10 border border-slate-400/20 rounded-full">
+<span class="material-symbols-outlined text-[14px] text-slate-400">download</span>
+<span class="text-[11px] font-semibold text-slate-400">Dl Off</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 bg-slate-400/10 border border-slate-400/20 rounded-full">
+<span class="material-symbols-outlined text-[14px] text-slate-400">videocam</span>
+<span class="text-[11px] font-semibold text-slate-400">No Rec</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 bg-amber-400/10 border border-amber-400/20 rounded-full">
+<span class="material-symbols-outlined text-[14px] text-amber-400">timer</span>
+<span class="text-[11px] font-semibold text-amber-400">120m</span>
+</div>
+</div>
+<div class="mt-auto">
+<p class="text-[10px] uppercase tracking-wider text-[#9d9db9] font-bold mb-2">Assigned Groups</p>
+<div class="flex flex-wrap gap-1.5">
+<span class="px-2 py-0.5 bg-white/5 rounded text-[10px] font-medium text-white/70">Developers</span>
+<span class="px-2 py-0.5 bg-white/5 rounded text-[10px] font-medium text-white/70">QA Team</span>
+</div>
+</div>
+</div>
+<!-- Policy Card 2 -->
+<div class="glass-card rounded-xl p-5 group hover:border-primary/50 transition-all duration-300 flex flex-col">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="text-lg font-bold text-white">Marketing Access</h3>
+<p class="text-xs text-[#9d9db9]">Last modified 1d ago</p>
+</div>
+<div class="flex gap-2">
+<button class="p-1.5 text-[#9d9db9] hover:text-white hover:bg-white/5 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+<button class="p-1.5 text-[#9d9db9] hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+<div class="flex flex-wrap gap-2 mb-6">
+<div class="flex items-center gap-1 px-2.5 py-1 bg-emerald-400/10 border border-emerald-400/20 rounded-full">
+<span class="material-symbols-outlined text-[14px] text-emerald-400">public</span>
+<span class="text-[11px] font-semibold text-emerald-400">Open Access</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 bg-slate-400/10 border border-slate-400/20 rounded-full">
+<span class="material-symbols-outlined text-[14px] text-slate-400">content_paste_off</span>
+<span class="text-[11px] font-semibold text-slate-400">Off</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 bg-emerald-400/10 border border-emerald-400/20 rounded-full">
+<span class="material-symbols-outlined text-[14px] text-emerald-400">download</span>
+<span class="text-[11px] font-semibold text-emerald-400">Dl On</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 bg-amber-400/10 border border-amber-400/20 rounded-full">
+<span class="material-symbols-outlined text-[14px] text-amber-400">timer</span>
+<span class="text-[11px] font-semibold text-amber-400">480m</span>
+</div>
+</div>
+<div class="mt-auto">
+<p class="text-[10px] uppercase tracking-wider text-[#9d9db9] font-bold mb-2">Assigned Groups</p>
+<div class="flex flex-wrap gap-1.5">
+<span class="px-2 py-0.5 bg-white/5 rounded text-[10px] font-medium text-white/70">Marketing</span>
+<span class="px-2 py-0.5 bg-white/5 rounded text-[10px] font-medium text-white/70">Social Media</span>
+</div>
+</div>
+</div>
+<!-- Policy Card 3 -->
+<div class="glass-card rounded-xl p-5 group hover:border-primary/50 transition-all duration-300 flex flex-col">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="text-lg font-bold text-white">Restricted Kiosk</h3>
+<p class="text-xs text-[#9d9db9]">Last modified 3h ago</p>
+</div>
+<div class="flex gap-2">
+<button class="p-1.5 text-[#9d9db9] hover:text-white hover:bg-white/5 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+<button class="p-1.5 text-[#9d9db9] hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+<div class="flex flex-wrap gap-2 mb-6">
+<div class="flex items-center gap-1 px-2.5 py-1 bg-primary/10 border border-primary/20 rounded-full">
+<span class="material-symbols-outlined text-[14px] text-primary">link</span>
+<span class="text-[11px] font-semibold text-primary">2 Allowed</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 bg-red-400/10 border border-red-400/20 rounded-full">
+<span class="material-symbols-outlined text-[14px] text-red-400">block</span>
+<span class="text-[11px] font-semibold text-red-400">High Security</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 bg-slate-400/10 border border-slate-400/20 rounded-full">
+<span class="material-symbols-outlined text-[14px] text-slate-400">print_disabled</span>
+<span class="text-[11px] font-semibold text-slate-400">No Print</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 bg-emerald-400/10 border border-emerald-400/20 rounded-full">
+<span class="material-symbols-outlined text-[14px] text-emerald-400">water_drop</span>
+<span class="text-[11px] font-semibold text-emerald-400">Watermark</span>
+</div>
+</div>
+<div class="mt-auto">
+<p class="text-[10px] uppercase tracking-wider text-[#9d9db9] font-bold mb-2">Assigned Groups</p>
+<div class="flex flex-wrap gap-1.5">
+<span class="px-2 py-0.5 bg-white/5 rounded text-[10px] font-medium text-white/70">External Contractors</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Modal Overlay -->
+<div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background-dark/80 backdrop-blur-sm">
+<div class="glass-modal w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+<!-- Modal Header -->
+<div class="p-6 border-b border-white/10 flex items-center justify-between">
+<div>
+<h2 class="text-xl font-bold text-white">Create New Policy</h2>
+<p class="text-sm text-[#9d9db9]">Define browser restrictions and user group assignments.</p>
+</div>
+<button class="text-[#9d9db9] hover:text-white">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<!-- Modal Content (Scrollable) -->
+<div class="overflow-y-auto p-6 space-y-8">
+<!-- Section: Basic Info -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="text-xs font-bold text-[#9d9db9] uppercase tracking-wider">Policy Name</label>
+<input class="w-full bg-white/5 border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:ring-primary focus:border-primary" placeholder="e.g. Sales Team Config" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-bold text-[#9d9db9] uppercase tracking-wider">Assigned Groups</label>
+<div class="relative">
+<select class="w-full bg-white/5 border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:ring-primary focus:border-primary appearance-none">
+<option class="bg-slate-900">Select Groups...</option>
+<option class="bg-slate-900">All Employees</option>
+<option class="bg-slate-900">Engineering</option>
+<option class="bg-slate-900">HR Department</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[#9d9db9] pointer-events-none">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Section: URL Filtering -->
+<div class="space-y-4">
+<div class="space-y-2">
+<label class="text-xs font-bold text-[#9d9db9] uppercase tracking-wider">URL Allowlist</label>
+<textarea class="w-full bg-white/5 border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:ring-primary focus:border-primary resize-none" placeholder="Enter one URL per line (e.g. *.google.com)" rows="3"></textarea>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-bold text-[#9d9db9] uppercase tracking-wider">URL Blocklist</label>
+<textarea class="w-full bg-white/5 border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:ring-primary focus:border-primary resize-none" placeholder="Restricted domains..." rows="2"></textarea>
+</div>
+</div>
+<!-- Section: Toggles -->
+<div>
+<label class="text-xs font-bold text-[#9d9db9] uppercase tracking-wider mb-4 block">Security Controls</label>
+<div class="grid grid-cols-2 md:grid-cols-3 gap-6">
+<!-- Toggle Item -->
+<div class="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5">
+<span class="text-xs font-medium text-white/80">Clipboard</span>
+<button class="w-10 h-5 bg-primary rounded-full relative">
+<span class="absolute right-1 top-1 w-3 h-3 bg-white rounded-full"></span>
+</button>
+</div>
+<div class="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5">
+<span class="text-xs font-medium text-white/80">Downloads</span>
+<button class="w-10 h-5 bg-white/10 rounded-full relative">
+<span class="absolute left-1 top-1 w-3 h-3 bg-slate-400 rounded-full"></span>
+</button>
+</div>
+<div class="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5">
+<span class="text-xs font-medium text-white/80">Printing</span>
+<button class="w-10 h-5 bg-white/10 rounded-full relative">
+<span class="absolute left-1 top-1 w-3 h-3 bg-slate-400 rounded-full"></span>
+</button>
+</div>
+<div class="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5">
+<span class="text-xs font-medium text-white/80">DevTools</span>
+<button class="w-10 h-5 bg-white/10 rounded-full relative">
+<span class="absolute left-1 top-1 w-3 h-3 bg-slate-400 rounded-full"></span>
+</button>
+</div>
+<div class="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5">
+<span class="text-xs font-medium text-white/80">Recording</span>
+<button class="w-10 h-5 bg-white/10 rounded-full relative">
+<span class="absolute left-1 top-1 w-3 h-3 bg-slate-400 rounded-full"></span>
+</button>
+</div>
+<div class="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5">
+<span class="text-xs font-medium text-white/80">Watermark</span>
+<button class="w-10 h-5 bg-primary rounded-full relative">
+<span class="absolute right-1 top-1 w-3 h-3 bg-white rounded-full"></span>
+</button>
+</div>
+</div>
+</div>
+<!-- Section: Slider -->
+<div class="space-y-4">
+<div class="flex justify-between items-center">
+<label class="text-xs font-bold text-[#9d9db9] uppercase tracking-wider">Session Timeout</label>
+<span class="text-primary font-bold text-sm">120 Minutes</span>
+</div>
+<input class="w-full" max="480" min="0" type="range" value="120"/>
+<div class="flex justify-between text-[10px] text-[#9d9db9]">
+<span>0m</span>
+<span>240m</span>
+<span>480m</span>
+</div>
+</div>
+</div>
+<!-- Modal Footer -->
+<div class="p-6 border-t border-white/10 bg-white/5 flex justify-end gap-3">
+<button class="px-5 py-2 rounded-xl text-sm font-bold text-white hover:bg-white/10 transition-colors">
+                    Cancel
+                </button>
+<button class="gradient-btn px-8 py-2 rounded-xl text-sm font-bold text-white shadow-lg shadow-primary/20">
+                    Save Policy
+                </button>
+</div>
+</div>
+</div>
+</body></html>

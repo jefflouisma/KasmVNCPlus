@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>KasmVNC Plus Enterprise Login</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
+<!-- Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#3713ec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#131022",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "2xl": "2rem", 
+                        "3xl": "2.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom styles for the animated gradient background */
+        .animated-bg {
+            background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #131022);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Glassmorphism card styles */
+        .glass-card {
+            background: rgba(19, 16, 34, 0.4);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        /* Custom glow for the button */
+        .glow-button {
+            box-shadow: 0 0 20px rgba(55, 19, 236, 0.5);
+            transition: all 0.3s ease;
+        }
+        .glow-button:hover {
+            box-shadow: 0 0 30px rgba(55, 19, 236, 0.7);
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body class="font-display antialiased text-white min-h-screen flex flex-col overflow-hidden">
+<!-- Main Background Wrapper -->
+<div class="animated-bg absolute inset-0 w-full h-full -z-10">
+<!-- Abstract mesh gradient overlay for texture -->
+<div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-soft-light" data-alt="Subtle noise texture overlay"></div>
+<!-- Large glowing orb effect in corner -->
+<div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-primary/30 rounded-full blur-[120px]"></div>
+<div class="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-purple-900/30 rounded-full blur-[120px]"></div>
+</div>
+<!-- Layout Container -->
+<main class="flex-grow flex items-center justify-center p-4 sm:p-6 lg:p-8 relative z-10">
+<!-- Glass Card -->
+<div class="glass-card w-full max-w-[540px] rounded-3xl p-8 sm:p-10 md:p-12 flex flex-col items-center text-center relative overflow-hidden">
+<!-- Top Subtle Border Highlight -->
+<div class="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+<!-- Logo Section -->
+<div class="mb-8 flex flex-col items-center">
+<div class="flex items-center gap-3 mb-2">
+<!-- Simple Logo Icon Shape -->
+<div class="w-10 h-10 rounded-lg bg-gradient-to-br from-white/20 to-white/5 flex items-center justify-center border border-white/10 shadow-inner">
+<span class="material-symbols-outlined text-white text-2xl">grid_view</span>
+</div>
+<span class="text-2xl font-black tracking-tight text-white drop-shadow-sm">KasmVNC <span class="text-primary font-normal">Plus</span></span>
+</div>
+</div>
+<!-- Header Text -->
+<div class="mb-10 space-y-3">
+<h1 class="text-3xl sm:text-4xl font-extrabold leading-tight tracking-tight text-white drop-shadow-md">
+                    Secure Enterprise Browser
+                </h1>
+<p class="text-slate-400 text-base sm:text-lg font-medium leading-relaxed max-w-sm mx-auto">
+                    Authenticate with your organization credentials to start a protected browsing session.
+                </p>
+</div>
+<!-- Main Action Button -->
+<div class="w-full mb-10">
+<a href="/auth/login" class="glow-button group relative w-full flex items-center justify-center gap-3 bg-gradient-to-r from-primary to-[#5b2eea] hover:from-[#4422f2] hover:to-[#6a40f0] text-white font-bold py-4 px-6 rounded-xl text-lg tracking-wide overflow-hidden no-underline">
+<!-- Button sheen effect -->
+<div class="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></div>
+<span class="material-symbols-outlined text-[24px]">lock</span>
+<span>Sign in with SSO</span>
+</a>
+</div>
+<!-- Divider -->
+<div class="w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mb-8"></div>
+<!-- Security Features Grid -->
+<div class="grid grid-cols-3 gap-2 w-full mb-6">
+<!-- Feature 1 -->
+<div class="flex flex-col items-center gap-2 group cursor-default">
+<div class="w-12 h-12 rounded-full bg-white/5 border border-white/5 flex items-center justify-center group-hover:bg-primary/20 group-hover:border-primary/30 transition-colors duration-300">
+<span class="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors">encrypted</span>
+</div>
+<span class="text-xs sm:text-sm font-semibold text-slate-400 group-hover:text-slate-200 transition-colors">Encrypted<br/>Session</span>
+</div>
+<!-- Feature 2 -->
+<div class="flex flex-col items-center gap-2 group cursor-default">
+<div class="w-12 h-12 rounded-full bg-white/5 border border-white/5 flex items-center justify-center group-hover:bg-primary/20 group-hover:border-primary/30 transition-colors duration-300">
+<span class="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors">policy</span>
+</div>
+<span class="text-xs sm:text-sm font-semibold text-slate-400 group-hover:text-slate-200 transition-colors">DLP<br/>Protected</span>
+</div>
+<!-- Feature 3 -->
+<div class="flex flex-col items-center gap-2 group cursor-default">
+<div class="w-12 h-12 rounded-full bg-white/5 border border-white/5 flex items-center justify-center group-hover:bg-primary/20 group-hover:border-primary/30 transition-colors duration-300">
+<span class="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors">videocam</span>
+</div>
+<span class="text-xs sm:text-sm font-semibold text-slate-400 group-hover:text-slate-200 transition-colors">Session<br/>Recorded</span>
+</div>
+</div>
+<!-- Footer -->
+<div class="mt-auto pt-4">
+<p class="text-xs text-slate-500 font-medium">
+                    Powered by KasmVNC Plus v1.0
+                </p>
+</div>
+</div>
+</main>
+<!-- Inline Keyframes for shimmer if needed by browser that doesn't support the tailwind arbitrary value animation perfectly -->
+<style>
+        @keyframes shimmer {
+            100% {
+                transform: translateX(100%);
+            }
+        }
+    </style>
+</body></html>
